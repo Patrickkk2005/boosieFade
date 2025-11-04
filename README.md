@@ -1,12 +1,3 @@
-this is the first commit :)
+This is our SQLite engine project.
 
-second test commit
-include <iostream>
-using namespace std;
-int main(){
-int n=10;
-cout<<n;
-
-}
-
-# boosieFade
+Who copies our source code is a om neserios and will have memory leaks his whole life.
