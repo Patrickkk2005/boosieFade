@@ -21,16 +21,17 @@ DataType conversionStringToDT(const string &s) {
 	return DataType::UNKNOW;
 };
 
-/*string conversionDTtoString(DataType type) {
-	if (type == 0)
+string conversionDTtoString(DataType type) {
+	if (type == NUMBER)
 		return "number";
-	if (type == 1)
+	if (type == STRING)
 		return "text";
-	if (type == 2)
+	if (type == DATE)
 		return "date";
-	if (type == 3)
+	if (type == UNKNOW)
 		throw "invalid datatype";
-};*/
+	return "UNKNOWN";
+};
 
 class Column {
   private:
