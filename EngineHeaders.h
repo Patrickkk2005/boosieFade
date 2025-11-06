@@ -293,8 +293,8 @@ class CreateTableCMD {
 
 class CreateTableParser {
   public:
-	CreateTableCMD *parsing(string query) {
-	}
+	// CreateTableCMD *parsing(string query) {
+	// }
 
 }; // end of parser class
 
