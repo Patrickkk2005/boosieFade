@@ -2,7 +2,6 @@
 
 #include "Tokenizer.h"
 #include <iostream>
-#include <regex>
 #include <string.h>
 #include <string>
 using namespace std;
@@ -294,5 +293,67 @@ class CreateTableCMD {
 }; // end of create table command class
 
 class CreateTableParser {
+  private:
+	bool ISkeyword(Token &token, const string &keyword) {
+		return token.type == TokenType::KEYWORD && token.content == keyword;
+	}
 
+  public:
+	CreateTableCMD *parse(const string &input) {
+		Tokenizer tokenizer(input);
+		TokenList *tokens = nullptr;
+
+		tokens = tokenizer.makeTokens();
+
+		if (tokens->getTokenCount() < 4) {
+			throw "Invalid CREATE TABLE command: too little tokens";
+		}
+
+		if (!ISkeyword((*tokens)[0], "CREATE") || !ISkeyword((*tokens)[1], "TABLE")) {
+			throw "Invalid command start!";
+		}
+
+		if ((*tokens)[2].type != TokenType::IDENTIFIER) {
+			throw "Invalid token!";
+		}
+
+		CreateTableCMD *cmd = new CreateTableCMD((*tokens)[2].content.c_str());
+
+		int pos = 3; // for navigating tokens
+
+		if ((*tokens)[pos].type != TokenType::SYMBOL || (*tokens)[pos].content != "(") {
+			throw "put '(' after table name!";
+		}
+		pos++;
+
+		while (pos < tokens->getTokenCount()) {
+			if ((*tokens)[pos].type == TokenType::SYMBOL && (*tokens)[pos].content == ")") {
+				break;
+			}
+
+			if ((*tokens)[pos].type != TokenType::IDENTIFIER) {
+				throw "Invalid column name!";
+			}
+			string colName = (*tokens)[pos].content;
+			pos++;
+
+			if ((*tokens)[pos].type != TokenType::KEYWORD) {
+				throw "Invalid data type!";
+			}
+			string dataType = (*tokens)[pos].content;
+			pos++;
+
+			Column col(colName.c_str(), dataType.c_str(), 10, nullptr);
+			cmd->addColumn(col);
+
+			if (pos < tokens->getTokenCount() &&
+				(*tokens)[pos].type == TokenType::SYMBOL &&
+				(*tokens)[pos].content == ",") {
+				pos++;
+			}
+		}
+
+		delete tokens;
+		return cmd;
+	}
 }; // end of parser class

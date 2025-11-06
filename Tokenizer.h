@@ -1,10 +1,57 @@
-#include "CreateTable.h"
-#include "MainEngine.h"
+#pragma once
+
 #include <iostream>
 #include <regex>
 #include <string.h>
 #include <string>
 using namespace std;
+
+class StringFuncs { // BECAUSE WE CANNOT USE CSTRING :(
+  public:
+	int stringTOint(const string &s) {
+		int result = 0;
+		bool neg = false;
+		int i = 0;
+		if (s.length() > 0 && s[0] == '-') {
+			neg = true;
+			i++;
+		}
+		for (; i < s.length(); i++) {
+			char c = s[i];
+			if (c < '0' || c > '9') {
+				break;
+			}
+			result = result * 10 + (c - '0');
+		}
+		if (neg == true) {
+			return -result;
+		} else
+			return result;
+	}
+
+	static bool isSpace(char c) {
+		return (c == ' ');
+	}
+
+	static bool isAlpha(char c) {
+		return ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'));
+	}
+
+	static bool isDigit(char c) {
+		return (c >= '0' && c <= '9');
+	}
+
+	static bool isAlfNum(char c) {
+		return (isAlpha(c) || isDigit(c));
+	}
+
+	static char toUpper(char c) {
+		if (c >= 'a' && c <= 'z') {
+			return c - 32;
+		}
+		return c;
+	}
+}; // end of string functions class
 
 enum TokenType { KEYWORD,
 				 IDENTIFIER,
@@ -47,8 +94,7 @@ class TokenList {
 
 			delete[] this->tokens;
 
-			this->tokens;
-			newTokens;
+			this->tokens = newTokens;
 		}
 		tokens[tokenCnt++] = tok;
 	}
@@ -139,50 +185,3 @@ class Tokenizer {
 	}
 
 }; // end of tokenizer class
-
-class StringFuncs { // BECAUSE WE CANNOT USE CSTRING :(
-  public:
-	int stringTOint(const string &s) {
-		int result = 0;
-		bool neg = false;
-		int i = 0;
-		if (s.length() > 0 && s[0] == '-') {
-			neg = true;
-			i++;
-		}
-		for (; i < s.length(); i++) {
-			char c = s[i];
-			if (c < '0' || c > '9') {
-				break;
-			}
-			result = result * 10 + (c - '0');
-		}
-		if (neg == true) {
-			return -result;
-		} else
-			return result;
-	}
-
-	static bool isSpace(char c) {
-		return (c == ' ');
-	}
-
-	static bool isAlpha(char c) {
-		return ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'));
-	}
-
-	static bool isDigit(char c) {
-		return (c >= '0' && c <= '9');
-	}
-
-	static bool isAlfNum(char c) {
-		return (isAlpha(c) || isDigit(c));
-	}
-
-	static char toUpper(char c) {
-		if (c >= 'a' && c <= 'z') {
-			return c - 32;
-		}
-		return c;
-	}
-}; // end of string functions class

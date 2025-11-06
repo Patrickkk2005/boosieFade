@@ -1,4 +1,4 @@
-#include "CreateTable.h"
+#include "MainEngine.h"
 #include <iostream>
 #include <regex>
 #include <string.h>
@@ -8,7 +8,7 @@ using namespace std;
 int CreateTableCMD::commandCounter = 0;
 
 int main() {
-	Column col1("userID", "NUMBER", 10, "0"); // test with param constructor
+	/*Column col1("userID", "NUMBER", 10, "0"); // test with param constructor
 	cout << "col1: " << col1 << endl;
 	Column col2; // normal assig
 	col2.setName("username");
@@ -36,10 +36,10 @@ int main() {
 
 	CreateTableCMD command2 = command1;
 
-	cout << command2;
+	cout << command2;*/
 
 	// REAL TEST
 
-	// MainEngine engine;
-	// engine.runapp();
+	MainEngine engine;
+	engine.runapp();
 }
