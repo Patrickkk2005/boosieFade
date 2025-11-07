@@ -174,7 +174,7 @@ class Tokenizer {
 				token.content = number;
 				token.line = 1;
 				tokens->addToken(token);
-			} else if (current == '(' || current == ')' || current == '.' || current == '*' || current == '=' || current == ';') {
+			} else if (current == '(' || current == ')' || current == '.' || current == '*' || current == '=' || current == ';' || current == ',') {
 				Token token;
 				token.type = TokenType::SYMBOL;
 				token.content = string(1, current);

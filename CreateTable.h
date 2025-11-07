@@ -318,7 +318,7 @@ class CreateTableParser {
 
 		tokens = tokenizer.makeTokens();
 
-		if (tokens->getTokenCount() < 4) {
+		if (tokens->getTokenCount() <= 5) {
 			throw "Invalid CREATE TABLE command: too little tokens";
 		}
 

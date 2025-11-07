@@ -45,7 +45,7 @@ class MainEngine {
 				} catch (const char *err) {
 					if (cmd)
 						delete cmd;
-					throw; // Re-throw the error after cleanup
+					throw;
 				}
 			} else {
 				cout << "For now only CREATE TABLE is available!" << endl;
