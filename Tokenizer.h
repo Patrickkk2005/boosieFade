@@ -149,12 +149,17 @@ class Tokenizer {
 				string upperWord = word;
 				for (char &c : upperWord)
 					c = StringFuncs::toUpper(c);
+				bool isKeyword = false;
 				for (int i = 0; i < keywcnt; i++) {
-					if (upperWord == keywords[i])
-						token.type = TokenType::KEYWORD;
-					else
-						token.type = TokenType::IDENTIFIER;
+					if (upperWord == keywords[i]) {
+						isKeyword = true;
+						break;
+					}
 				}
+				if (isKeyword)
+					token.type = TokenType::KEYWORD;
+				else
+					token.type = TokenType::IDENTIFIER;
 				token.content = word;
 				token.line = 1;
 				tokens->addToken(token);
@@ -169,16 +174,15 @@ class Tokenizer {
 				token.content = number;
 				token.line = 1;
 				tokens->addToken(token);
-			} else if (current == '(' || current == ')' || current == '.' || current == '*' || current == '=') {
+			} else if (current == '(' || current == ')' || current == '.' || current == '*' || current == '=' || current == ';') {
 				Token token;
 				token.type = TokenType::SYMBOL;
 				token.content = string(1, current);
-				token.line = 1;
 				tokens->addToken(token);
 				pos++;
 			} else {
-				delete tokens;
-				throw "invalid character";
+				cout << "invalid character " << current << endl;
+				pos++;
 			}
 		}
 		return tokens;

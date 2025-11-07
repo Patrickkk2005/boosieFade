@@ -295,7 +295,20 @@ class CreateTableCMD {
 class CreateTableParser {
   private:
 	bool ISkeyword(Token &token, const string &keyword) {
-		return token.type == TokenType::KEYWORD && token.content == keyword;
+		if (token.type != TokenType::KEYWORD) {
+			return false;
+		}
+
+		string upperTok = token.content;
+		string upperKey = keyword;
+		for (char &c : upperTok) {
+			c = StringFuncs::toUpper(c);
+		}
+		for (char &c : upperKey) {
+			c = StringFuncs::toUpper(c);
+		}
+
+		return upperTok == upperKey;
 	}
 
   public:
@@ -346,9 +359,7 @@ class CreateTableParser {
 			Column col(colName.c_str(), dataType.c_str(), 10, nullptr);
 			cmd->addColumn(col);
 
-			if (pos < tokens->getTokenCount() &&
-				(*tokens)[pos].type == TokenType::SYMBOL &&
-				(*tokens)[pos].content == ",") {
+			if (pos < tokens->getTokenCount() && (*tokens)[pos].type == TokenType::SYMBOL && (*tokens)[pos].content == ",") {
 				pos++;
 			}
 		}
