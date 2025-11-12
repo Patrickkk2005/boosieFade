@@ -1,6 +1,6 @@
 #pragma once
-
 #include "CreateTable.h"
+#include "DropTable.h"
 #include <iostream>
 #include <string.h>
 #include <string>
@@ -47,8 +47,20 @@ class MainEngine {
 						delete cmd;
 					throw;
 				}
+			} else if (upperC.find("DROP TABLE") == 0) {
+				DropTableParser parser;
+				DropTableCMD *cmd = nullptr;
+				try {
+					cmd = parser.parse(command);
+					cout << "Table '" << cmd->tableName << "' dropped." << endl;
+					delete cmd;
+				} catch (const char *err) {
+					if (cmd)
+						delete cmd;
+					throw;
+				}
 			} else {
-				cout << "For now only CREATE TABLE is available!" << endl;
+				cout << "For now only CREATE TABLE and DROP TABLE is available!" << endl;
 			}
 		} catch (const char *err) {
 			cout << "SQL Error: " << err << endl;
