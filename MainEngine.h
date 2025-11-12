@@ -1,5 +1,6 @@
 #pragma once
 #include "CreateTable.h"
+#include "DisplayTable.h"
 #include "DropTable.h"
 #include <iostream>
 #include <string.h>
@@ -59,12 +60,24 @@ class MainEngine {
 						delete cmd;
 					throw;
 				}
+			} else if (upperC.find("DISPLAY TABLE") == 0) {
+				DisplayTableParser parser;
+				DisplayTableCMD *cmd = nullptr;
+				try {
+					cmd = parser.parse(command);
+					cout << *cmd;
+					delete cmd;
+				} catch (const char *err) {
+					if (cmd)
+						delete cmd;
+					throw;
+				}
 			} else {
-				cout << "For now only CREATE TABLE and DROP TABLE is available!" << endl;
+				cout << "For now only CREATE TABLE, DROP TABLE and DISPLAY TABLE is available!" << endl;
 			}
 		} catch (const char *err) {
 			cout << "SQL Error: " << err << endl;
-		} catch (const std::exception &e) {
+		} catch (const exception &e) {
 			cout << "Error: " << e.what() << endl;
 		} catch (...) {
 			cout << "An unexpected error occurred" << endl;

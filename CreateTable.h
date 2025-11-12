@@ -57,8 +57,6 @@ class Column {
 		this->type = UNKNOW;
 		this->size = 0;
 		this->defaultValue = nullptr;
-
-		cout << "Default constructor used" << endl;
 	}
 
 	Column(const char *ColumnName, const char *typeString, int size, const char *defaultValue) {
@@ -146,9 +144,9 @@ class Column {
 
 	friend ostream &operator<<(ostream &os, const Column &col) {
 		os << "Column Name: " << col.ColumnName << endl
-		   << ", Type: " << col.type << endl
-		   << ", Size: " << col.size << endl
-		   << ", Default Value: " << col.defaultValue << endl;
+		   << " Type: " << col.type << endl
+		   << " Size: " << col.size << endl
+		   << " Default Value: " << col.defaultValue << endl;
 		return os;
 	}
 
@@ -319,14 +317,17 @@ class CreateTableParser {
 		tokens = tokenizer.makeTokens();
 
 		if (tokens->getTokenCount() <= 5) {
+			delete tokens;
 			throw "Invalid CREATE TABLE command: too little tokens";
 		}
 
 		if (!ISkeyword((*tokens)[0], "CREATE") || !ISkeyword((*tokens)[1], "TABLE")) {
+			delete tokens;
 			throw "Invalid command start!";
 		}
 
 		if ((*tokens)[2].type != TokenType::IDENTIFIER) {
+			delete tokens;
 			throw "Invalid token!";
 		}
 
@@ -335,28 +336,90 @@ class CreateTableParser {
 		int pos = 3; // for navigating tokens
 
 		if ((*tokens)[pos].type != TokenType::SYMBOL || (*tokens)[pos].content != "(") {
+			delete tokens;
+			delete cmd;
 			throw "put '(' after table name!";
 		}
 		pos++;
 
 		while (pos < tokens->getTokenCount()) {
 			if ((*tokens)[pos].type == TokenType::SYMBOL && (*tokens)[pos].content == ")") {
+				pos++;
 				break;
 			}
 
+			if ((*tokens)[pos].type != TokenType::SYMBOL || (*tokens)[pos].content != "(") {
+				delete tokens;
+				delete cmd;
+				throw "Expected '(' before column definition!";
+			}
+			pos++;
+
 			if ((*tokens)[pos].type != TokenType::IDENTIFIER) {
+				delete tokens;
+				delete cmd;
 				throw "Invalid column name!";
 			}
 			string colName = (*tokens)[pos].content;
 			pos++;
 
+			if ((*tokens)[pos].type != TokenType::SYMBOL || (*tokens)[pos].content != ",") {
+				delete tokens;
+				delete cmd;
+				throw "Expected ',' after column name!";
+			}
+			pos++;
+
 			if ((*tokens)[pos].type != TokenType::KEYWORD) {
+				delete tokens;
+				delete cmd;
 				throw "Invalid data type!";
 			}
 			string dataType = (*tokens)[pos].content;
 			pos++;
 
-			Column col(colName.c_str(), dataType.c_str(), 10, nullptr);
+			if ((*tokens)[pos].type != TokenType::SYMBOL || (*tokens)[pos].content != ",") {
+				delete tokens;
+				delete cmd;
+				throw "Expected ',' after data type!";
+			}
+			pos++;
+
+			if ((*tokens)[pos].type != TokenType::NUMBER) {
+				delete tokens;
+				delete cmd;
+				throw "Invalid size! Must be a number!";
+			}
+			StringFuncs sf;
+			int size = sf.stringTOint((*tokens)[pos].content);
+			pos++;
+
+			if ((*tokens)[pos].type != TokenType::SYMBOL || (*tokens)[pos].content != ",") {
+				delete tokens;
+				delete cmd;
+				throw "Expected ',' after size!";
+			}
+			pos++;
+
+			string defaultVal = "";
+			if ((*tokens)[pos].type == TokenType::IDENTIFIER || (*tokens)[pos].type == TokenType::STRING || (*tokens)[pos].type == TokenType::NUMBER) {
+				defaultVal = (*tokens)[pos].content;
+				pos++;
+			} else if ((*tokens)[pos].type == TokenType::KEYWORD && (*tokens)[pos].content == "NULL") {
+				defaultVal = "NULL";
+				pos++;
+			} else {
+				defaultVal = "NULL";
+			}
+
+			if ((*tokens)[pos].type != TokenType::SYMBOL || (*tokens)[pos].content != ")") {
+				delete tokens;
+				delete cmd;
+				throw "Expected ')' after default value!";
+			}
+			pos++;
+
+			Column col(colName.c_str(), dataType.c_str(), size, defaultVal.c_str());
 			cmd->addColumn(col);
 
 			if (pos < tokens->getTokenCount() && (*tokens)[pos].type == TokenType::SYMBOL && (*tokens)[pos].content == ",") {

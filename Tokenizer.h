@@ -120,8 +120,8 @@ class Tokenizer {
 	TokenList *tokens;
 
   public:
-	const char *keywords[21] = {"CREATE", "TABLE", "IF", "NOT", "EXISTS", "INTEGER", "FLOAT", "TEXT", "DEFAULT", "SELECT", "FROM", "WHERE", "INSERT", "INTO", "VALUES", "UPDATE", "SET", "DELETE", "DROP", "INDEX", "ON"};
-	const int keywcnt = 21; // will add along the way
+	const char *keywords[22] = {"CREATE", "TABLE", "IF", "NOT", "EXISTS", "INTEGER", "FLOAT", "TEXT", "DEFAULT", "SELECT", "FROM", "WHERE", "INSERT", "INTO", "VALUES", "UPDATE", "SET", "DELETE", "DROP", "INDEX", "ON", "DISPLAY"};
+	const int keywcnt = 22; // will add along the way
 	Tokenizer(const string &s) {
 		this->input = s;
 		this->pos = 0;
