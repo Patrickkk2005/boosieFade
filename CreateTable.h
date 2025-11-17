@@ -144,7 +144,7 @@ class Column {
 
 	friend ostream &operator<<(ostream &os, const Column &col) {
 		os << "Column Name: " << col.ColumnName << endl
-		   << " Type: " << col.type << endl
+		   << " Type: " << conversionDTtoString(col.type) << endl
 		   << " Size: " << col.size << endl
 		   << " Default Value: " << col.defaultValue << endl;
 		return os;
@@ -173,7 +173,6 @@ class Column {
 class CreateTableCMD {
   private:
 	string tableName;
-	bool IFnotExist;
 	Column *columns;
 	int columnCnt;
 	int columnCap;
@@ -183,18 +182,16 @@ class CreateTableCMD {
 	const int cmdID;
 
 	CreateTableCMD() : cmdID(++commandCounter) {
-		this->IFnotExist = false;
 		this->columns = nullptr;
 		this->columnCnt = 0;
 		this->columnCap = 0;
 	}
 
-	CreateTableCMD(const char *name, bool ifq = false) : cmdID(++commandCounter) {
+	CreateTableCMD(const char *name) : cmdID(++commandCounter) {
 		this->tableName = name;
 		if (tableName.empty()) {
 			throw "Name cannot be empty!";
 		}
-		this->IFnotExist = ifq;
 		this->columns = nullptr;
 		this->columnCnt = 0;
 		this->columnCap = 0;
@@ -202,7 +199,6 @@ class CreateTableCMD {
 
 	CreateTableCMD(const CreateTableCMD &otherTable) : cmdID(++commandCounter) {
 		this->tableName = otherTable.tableName;
-		this->IFnotExist = otherTable.IFnotExist;
 		this->columnCnt = otherTable.columnCnt;
 		this->columnCap = otherTable.columnCap;
 
@@ -220,7 +216,6 @@ class CreateTableCMD {
 		delete[] this->columns;
 
 		this->tableName = otherTable.tableName;
-		this->IFnotExist = otherTable.IFnotExist;
 		this->columnCnt = otherTable.columnCnt;
 		this->columnCap = otherTable.columnCap;
 
@@ -241,12 +236,13 @@ class CreateTableCMD {
 			int newCap;
 			if (columnCap == 0) {
 				newCap = 5;
-			} else
-				newCap = newCap * 2;
+			} else {
+				newCap = columnCap * 2;
+			}
 			Column *newCol = new Column[newCap];
 
 			if (columns != nullptr)
-				for (int i = 0; i < newCap; i++) {
+				for (int i = 0; i < columnCnt; i++) {
 					newCol[i] = this->columns[i];
 				}
 

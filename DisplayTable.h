@@ -17,10 +17,22 @@ class DisplayTableCMD {
 		}
 		this->tableName = tableName;
 	}
-	friend ostream &operator<<(ostream &os, const DisplayTableCMD &c) {
-		os << "Table Name: " << c.tableName << endl;
-		os << "Table ID: ";
-		return os;
+	void dsptbl(CreateTableCMD *tables, int tableCount) {
+		int idx = findTableIndex(tables, tableCount);
+		if (idx == -1) {
+			throw "Table does not exist!";
+		}
+		cout << tables[idx];
+	}
+
+  private:
+	int findTableIndex(CreateTableCMD *tables, int tableCount) {
+		for (int i = 0; i < tableCount; i++) {
+			if (tables[i].getTableName() == this->tableName) {
+				return i;
+			}
+		}
+		return -1;
 	}
 }; // end of display command class
 

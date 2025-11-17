@@ -15,9 +15,25 @@ class DropTableCMD {
 		}
 		this->tableName = name;
 	}
-	friend ostream &operator<<(ostream &os, const DropTableCMD &c) {
-		os << "DROP TABLE: " << c.tableName << endl;
-		return os;
+	void drptbl(CreateTableCMD *tables, int &tableCount) {
+		int idx = findTableIndex(tables, tableCount);
+		if (idx == -1) {
+			throw "Table does not exist!";
+		}
+		for (int i = idx; i < tableCount - 1; i++) {
+			tables[i] = tables[i + 1];
+		}
+		tableCount--;
+	}
+
+  private:
+	int findTableIndex(CreateTableCMD *tables, int tableCount) {
+		for (int i = 0; i < tableCount; i++) {
+			if (tables[i].getTableName() == this->tableName) {
+				return i;
+			}
+		}
+		return -1;
 	}
 }; // end of drop table command class
 
