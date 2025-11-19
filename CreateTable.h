@@ -2,7 +2,6 @@
 
 #include "Tokenizer.h"
 #include <iostream>
-#include <string.h>
 #include <string>
 using namespace std;
 
@@ -11,26 +10,29 @@ enum DataType { INTEGER,
 				TEXT,
 				UNKNOW };
 
-DataType conversionStringToDT(const string &s) {
-	if (s == "INTEGER")
-		return DataType::INTEGER;
-	if (s == "FLOAT")
-		return DataType::FLOAT;
-	if (s == "TEXT")
-		return DataType::TEXT;
-	return DataType::UNKNOW;
-};
+class CreateTableUtils {
+  public:
+	static DataType conversionStringToDT(const string &s) {
+		if (s == "INTEGER")
+			return DataType::INTEGER;
+		if (s == "FLOAT")
+			return DataType::FLOAT;
+		if (s == "TEXT")
+			return DataType::TEXT;
+		return DataType::UNKNOW;
+	}
 
-string conversionDTtoString(DataType type) {
-	if (type == INTEGER)
-		return "integer";
-	if (type == FLOAT)
-		return "float";
-	if (type == TEXT)
-		return "text";
-	if (type == UNKNOW)
-		throw "invalid datatype";
-	return "UNKNOWN";
+	static string conversionDTtoString(DataType type) {
+		if (type == INTEGER)
+			return "integer";
+		if (type == FLOAT)
+			return "float";
+		if (type == TEXT)
+			return "text";
+		if (type == UNKNOW)
+			throw "invalid datatype";
+		return "UNKNOWN";
+	}
 };
 
 class Column {
@@ -135,7 +137,7 @@ class Column {
 	}
 
 	void setDatatype(const char *datatype) {
-		DataType newtype = conversionStringToDT(datatype);
+		DataType newtype = CreateTableUtils::conversionStringToDT(datatype);
 		if (newtype == DataType::UNKNOW) {
 			throw "Invalid DataType!";
 		}
@@ -144,7 +146,7 @@ class Column {
 
 	friend ostream &operator<<(ostream &os, const Column &col) {
 		os << "Column Name: " << col.ColumnName << endl
-		   << " Type: " << conversionDTtoString(col.type) << endl
+		   << " Type: " << CreateTableUtils::conversionDTtoString(col.type) << endl
 		   << " Size: " << col.size << endl
 		   << " Default Value: " << col.defaultValue << endl;
 		return os;
