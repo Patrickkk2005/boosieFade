@@ -12,7 +12,7 @@ class CreateIndexCMD {
 	string tableName;
 	string columnName;
 
-	void deepCpyFunc(char *news, char *olds) {
+	void deepCpyFunc(char *&news, char *olds) {
 		if (news != nullptr) {
 			delete[] news;
 			news = nullptr;
@@ -70,9 +70,6 @@ class CreateIndexCMD {
 		return this->columnName;
 	}
 
-	void createIdx(CreateTableCMD *tables, int tableCnt) {
-	}
-
 	void createIndex(CreateTableCMD *tables, int tableCount) {
 		int tI = findTblIndex(tables, tableCount);
 		if (tI == -1) {
@@ -88,4 +85,87 @@ class CreateIndexCMD {
 
 class CreateIndexParser {
   private:
+	bool ISkeyword(Token &token, const string &keyword) {
+		if (token.type != TokenType::KEYWORD) {
+			return false;
+		}
+
+		string upperTok = token.content;
+		string upperKey = keyword;
+		for (char &c : upperTok) {
+			c = StringFuncs::toUpper(c);
+		}
+		for (char &c : upperKey) {
+			c = StringFuncs::toUpper(c);
+		}
+
+		return upperTok == upperKey;
+	}
+
+  public:
+	CreateIndexCMD *parse(const string &input) {
+		Tokenizer tokenizer(input);
+		TokenList *tokens = nullptr;
+		tokens = tokenizer.makeTokens();
+		if (tokens->getTokenCount() < 6) {
+			delete tokens;
+			throw "Invalid CREATE INDEX command: to few tokens!";
+		}
+		if (!ISkeyword((*tokens)[0], "CREATE") || !ISkeyword((*tokens)[1], "INDEX")) {
+			delete tokens;
+			throw "Invlid command start!";
+		}
+		if ((*tokens)[2].type != TokenType::IDENTIFIER) {
+			delete tokens;
+			throw "Invalid token!";
+		}
+		char *idxName = new char[(*tokens)[2].content.length() + 1];
+		strcpy(idxName, (*tokens)[2].content.c_str());
+
+		int pos = 3;
+
+		if ((*tokens)[pos].type != TokenType::KEYWORD || (*tokens)[pos].content != "ON") {
+			delete tokens;
+			throw "forgot to put ON!";
+		}
+
+		pos++;
+
+		if ((*tokens)[pos].type != TokenType::IDENTIFIER) {
+			delete tokens;
+			throw "Invalid table name!";
+		}
+
+		string tblName;
+		tblName = (*tokens)[pos].content;
+		pos++;
+
+		if ((*tokens)[pos].type != TokenType::SYMBOL || (*tokens)[pos].content != "(") {
+			delete tokens;
+			throw "Expected '(' before column definition!";
+		}
+
+		pos++;
+
+		if ((*tokens)[pos].type != TokenType::IDENTIFIER) {
+			delete tokens;
+			throw "Invalid table name!";
+		}
+
+		string colName;
+		colName = (*tokens)[pos].content;
+		pos++;
+
+		if ((*tokens)[pos].type != TokenType::SYMBOL || (*tokens)[pos].content != ")") {
+			delete tokens;
+			throw "Expected ')' after default value!";
+		}
+		pos++;
+
+		CreateIndexCMD *idx = new CreateIndexCMD(idxName, tblName, colName);
+		delete[] idxName;
+		delete tokens;
+		return idx;
+	}
+
 }; // end of create inde parser class

@@ -1,4 +1,5 @@
 #pragma once
+#include "CreateIndex.h"
 #include "CreateTable.h"
 #include "DisplayTable.h"
 #include "DropTable.h"
@@ -25,7 +26,6 @@ class MainEngine {
 		while (true) {
 			cout << "sql>> ";
 			getline(cin, input);
-
 			if (input == "exit") {
 				cout << "Goodbye!" << endl;
 				break;
@@ -106,6 +106,13 @@ class MainEngine {
 				DisplayTableCMD *cmd = nullptr;
 				cmd = parser.parse(command);
 				cmd->dsptbl(this->tables, this->tableCount);
+				delete cmd;
+			} else if (upperC.find("CREATE INDEX") == 0) {
+				CreateIndexParser parser;
+				CreateIndexCMD *cmd = nullptr;
+				cmd = parser.parse(command);
+				cmd->createIndex(this->tables, this->tableCount);
+				cout << "Index '" << cmd->getIndexName() << "' created on table '" << cmd->getTableName() << "' column '" << cmd->getColumnName() << "'." << endl;
 				delete cmd;
 			} else {
 				cout << "For now only CREATE TABLE, DROP TABLE and DISPLAY TABLE is available!" << endl;
