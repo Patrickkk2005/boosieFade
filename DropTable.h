@@ -7,8 +7,18 @@
 using namespace std;
 
 class DropTableCMD {
-  public:
+  private:
 	string tableName;
+	int findTableIndex(CreateTableCMD *tables, int tableCount) {
+		for (int i = 0; i < tableCount; i++) {
+			if (tables[i].getTableName() == this->tableName) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+  public:
 	DropTableCMD(const string &name) {
 		if (name.empty()) {
 			throw "name cannot be empty!";
@@ -26,15 +36,6 @@ class DropTableCMD {
 		tableCount--;
 	}
 
-  private:
-	int findTableIndex(CreateTableCMD *tables, int tableCount) {
-		for (int i = 0; i < tableCount; i++) {
-			if (tables[i].getTableName() == this->tableName) {
-				return i;
-			}
-		}
-		return -1;
-	}
 }; // end of drop table command class
 
 class DropTableParser {

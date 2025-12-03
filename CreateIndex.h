@@ -42,6 +42,12 @@ class CreateIndexCMD {
 	}
 
   public:
+	CreateIndexCMD() {
+		this->indexName = nullptr;
+		this->tableName = "";
+		this->columnName = "";
+	}
+
 	CreateIndexCMD(char *indexName, const string &tableName, const string &columnName) {
 		this->indexName = nullptr;
 		if (indexName == nullptr || tableName.empty() || columnName.empty()) {

@@ -2,6 +2,7 @@
 #include "CreateIndex.h"
 #include "CreateTable.h"
 #include "DisplayTable.h"
+#include "DropIndex.h"
 #include "DropTable.h"
 #include <iostream>
 #include <string.h>
@@ -9,40 +10,13 @@
 using namespace std;
 
 class MainEngine {
-  public:
-	MainEngine() {
-		this->tables = nullptr;
-		this->tableCount = 0;
-		this->tableCap = 0;
-	}
-
-	~MainEngine() {
-		delete[] this->tables;
-	}
-
-	void runapp() {
-		string input;
-		cout << "SQLite ENGINE V1 (type 'exit' to quit)" << endl;
-		while (true) {
-			cout << "sql>> ";
-			getline(cin, input);
-			if (input == "exit") {
-				cout << "Goodbye!" << endl;
-				break;
-			}
-
-			if (input.empty()) {
-				cout << "Please enter a command";
-			}
-
-			processCMD(input);
-		}
-	}
-
   private:
 	CreateTableCMD *tables;
 	int tableCount;
 	int tableCap;
+	CreateIndexCMD *indexes;
+	int indexCount;
+	int indexCap;
 
 	void increaseTableCap() {
 		if (this->tableCount < this->tableCap) {
@@ -56,6 +30,37 @@ class MainEngine {
 		delete[] this->tables;
 		this->tables = newTables;
 		this->tableCap = newCap;
+	}
+
+	void increaseIndexCap() {
+		if (this->indexCount < this->indexCap) {
+			return;
+		}
+		int newCap = (this->indexCap == 0) ? 4 : this->indexCap * 2;
+		CreateIndexCMD *newIndexes = new CreateIndexCMD[newCap];
+		for (int i = 0; i < this->indexCount; i++) {
+			newIndexes[i] = this->indexes[i];
+		}
+		delete[] this->indexes;
+		this->indexes = newIndexes;
+		this->indexCap = newCap;
+	}
+
+	void storeIndex(CreateIndexCMD &cmd) {
+		if (findIndexIndex(cmd.getIndexName()) != -1) {
+			throw "Index already exists!";
+		}
+		increaseIndexCap();
+		this->indexes[this->indexCount++] = cmd;
+	}
+
+	int findIndexIndex(const char *name) {
+		for (int i = 0; i < this->indexCount; i++) {
+			if (strcmp(this->indexes[i].getIndexName(), name) == 0) {
+				return i;
+			}
+		}
+		return -1;
 	}
 
 	int findTableIndex(const string &name) {
@@ -84,22 +89,16 @@ class MainEngine {
 			if (upperC.find("CREATE TABLE") == 0) {
 				CreateTableParser parser;
 				CreateTableCMD *cmd = nullptr;
-				try {
-					cmd = parser.parse(command);
-					storeTable(*cmd);
-					cout << "Table '" << cmd->getTableName() << "' created." << endl;
-					delete cmd;
-				} catch (const char *err) {
-					if (cmd)
-						delete cmd;
-					throw;
-				}
+				cmd = parser.parse(command);
+				storeTable(*cmd);
+				cout << "Table '" << cmd->getTableName() << "' created." << endl;
+				delete cmd;
 			} else if (upperC.find("DROP TABLE") == 0) {
 				DropTableParser parser;
 				DropTableCMD *cmd = nullptr;
 				cmd = parser.parse(command);
 				cmd->drptbl(this->tables, this->tableCount);
-				cout << "Table '" << cmd->tableName << "' dropped." << endl;
+				cout << "Table dropped." << endl;
 				delete cmd;
 			} else if (upperC.find("DISPLAY TABLE") == 0) {
 				DisplayTableParser parser;
@@ -111,11 +110,18 @@ class MainEngine {
 				CreateIndexParser parser;
 				CreateIndexCMD *cmd = nullptr;
 				cmd = parser.parse(command);
-				cmd->createIndex(this->tables, this->tableCount);
+				storeIndex(*cmd);
 				cout << "Index '" << cmd->getIndexName() << "' created on table '" << cmd->getTableName() << "' column '" << cmd->getColumnName() << "'." << endl;
 				delete cmd;
+			} else if (upperC.find("DROP INDEX") == 0) {
+				DropIndexParser parser;
+				DropIndexCMD *cmd = nullptr;
+				cmd = parser.parse(command);
+				cmd->drpidx(this->indexes, this->indexCount);
+				cout << "Index dropped." << endl;
+				delete cmd;
 			} else {
-				cout << "For now only CREATE TABLE, DROP TABLE and DISPLAY TABLE is available!" << endl;
+				cout << "For now only CREATE TABLE, DROP TABLE DISPLAY TABLE, CREATE INDEX and DROP INDEX are available!" << endl;
 			}
 		} catch (const char *err) {
 			cout << "SQL Error: " << err << endl;
@@ -123,6 +129,40 @@ class MainEngine {
 			cout << "Error: " << e.what() << endl;
 		} catch (...) {
 			cout << "An unexpected error occurred" << endl;
+		}
+	}
+
+  public:
+	MainEngine() {
+		this->tables = nullptr;
+		this->tableCount = 0;
+		this->tableCap = 0;
+		this->indexes = nullptr;
+		this->indexCount = 0;
+		this->indexCap = 0;
+	}
+
+	~MainEngine() {
+		delete[] this->tables;
+		delete[] this->indexes;
+	}
+
+	void runapp() {
+		string input;
+		cout << "SQLite ENGINE V1 (type 'exit' to quit)" << endl;
+		while (true) {
+			cout << "sql>> ";
+			getline(cin, input);
+			if (input == "exit") {
+				cout << "Goodbye!" << endl;
+				break;
+			}
+
+			if (input.empty()) {
+				cout << "Please enter a command";
+			}
+
+			processCMD(input);
 		}
 	}
 };
