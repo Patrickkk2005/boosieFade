@@ -178,10 +178,10 @@ class CreateTableCMD {
 	Column *columns;
 	int columnCnt;
 	int columnCap;
+	const int cmdID;
 
   public:
 	static int commandCounter;
-	const int cmdID;
 
 	CreateTableCMD() : cmdID(++commandCounter) {
 		this->columns = nullptr;
@@ -237,7 +237,7 @@ class CreateTableCMD {
 		if (columnCnt >= columnCap) {
 			int newCap;
 			if (columnCap == 0) {
-				newCap = 5;
+				newCap = 4;
 			} else {
 				newCap = columnCap * 2;
 			}
@@ -324,7 +324,7 @@ class CreateTableParser {
 			throw "Invalid command start!";
 		}
 
-		if ((*tokens)[2].type != TokenType::IDENTIFIER) {
+		if ((*tokens)[2].type != TokenType::STRING) {
 			delete tokens;
 			throw "Invalid token!";
 		}
@@ -353,7 +353,7 @@ class CreateTableParser {
 			}
 			pos++;
 
-			if ((*tokens)[pos].type != TokenType::IDENTIFIER) {
+			if ((*tokens)[pos].type != TokenType::STRING) {
 				delete tokens;
 				delete cmd;
 				throw "Invalid column name!";
@@ -400,14 +400,16 @@ class CreateTableParser {
 			pos++;
 
 			string defaultVal = "";
-			if ((*tokens)[pos].type == TokenType::IDENTIFIER || (*tokens)[pos].type == TokenType::STRING || (*tokens)[pos].type == TokenType::NUMBER) {
+			if ((*tokens)[pos].type == TokenType::STRING || (*tokens)[pos].type == TokenType::STRING || (*tokens)[pos].type == TokenType::NUMBER) {
 				defaultVal = (*tokens)[pos].content;
 				pos++;
 			} else if ((*tokens)[pos].type == TokenType::KEYWORD && (*tokens)[pos].content == "NULL") {
 				defaultVal = "NULL";
 				pos++;
 			} else {
-				defaultVal = "NULL";
+				delete tokens;
+				delete cmd;
+				throw "Invalid default value!";
 			}
 
 			if ((*tokens)[pos].type != TokenType::SYMBOL || (*tokens)[pos].content != ")") {

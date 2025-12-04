@@ -1,7 +1,6 @@
 #pragma once
 
 #include <iostream>
-#include <regex>
 #include <string.h>
 #include <string>
 using namespace std;
@@ -54,7 +53,6 @@ class StringFuncs { // BECAUSE WE CANNOT USE CSTRING :(
 }; // end of string functions class
 
 enum TokenType { KEYWORD,
-				 IDENTIFIER,
 				 NUMBER,
 				 STRING,
 				 SYMBOL,
@@ -159,7 +157,7 @@ class Tokenizer {
 				if (isKeyword)
 					token.type = TokenType::KEYWORD;
 				else
-					token.type = TokenType::IDENTIFIER;
+					token.type = TokenType::STRING;
 				token.content = word;
 				token.line = 1;
 				tokens->addToken(token);
@@ -181,7 +179,7 @@ class Tokenizer {
 				tokens->addToken(token);
 				pos++;
 			} else {
-				cout << "invalid character " << current << endl;
+				cout << "invalid character! " << current << endl;
 				pos++;
 			}
 		}

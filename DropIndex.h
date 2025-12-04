@@ -73,7 +73,7 @@ class DropIndexParser {
 		}
 
 		int pos = 2;
-		if ((*tokens)[pos].type != TokenType::IDENTIFIER) {
+		if ((*tokens)[pos].type != TokenType::STRING) {
 			delete tokens;
 			throw "missing index name";
 		}

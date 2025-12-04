@@ -69,7 +69,7 @@ class DisplayTableParser {
 			throw "invalid command start!";
 		}
 
-		if ((*tokens)[2].type != TokenType::IDENTIFIER) {
+		if ((*tokens)[2].type != TokenType::STRING) {
 			delete tokens;
 			throw "missing table name!";
 		}

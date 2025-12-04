@@ -121,7 +121,7 @@ class CreateIndexParser {
 			delete tokens;
 			throw "Invlid command start!";
 		}
-		if ((*tokens)[2].type != TokenType::IDENTIFIER) {
+		if ((*tokens)[2].type != TokenType::STRING) {
 			delete tokens;
 			throw "Invalid token!";
 		}
@@ -137,7 +137,7 @@ class CreateIndexParser {
 
 		pos++;
 
-		if ((*tokens)[pos].type != TokenType::IDENTIFIER) {
+		if ((*tokens)[pos].type != TokenType::STRING) {
 			delete tokens;
 			throw "Invalid table name!";
 		}
@@ -153,7 +153,7 @@ class CreateIndexParser {
 
 		pos++;
 
-		if ((*tokens)[pos].type != TokenType::IDENTIFIER) {
+		if ((*tokens)[pos].type != TokenType::STRING) {
 			delete tokens;
 			throw "Invalid table name!";
 		}
