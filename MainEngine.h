@@ -4,6 +4,7 @@
 #include "DisplayTable.h"
 #include "DropIndex.h"
 #include "DropTable.h"
+#include "Insert.h"
 #include <iostream>
 #include <string.h>
 #include <string>
@@ -120,8 +121,16 @@ class MainEngine {
 				cmd->drpidx(this->indexes, this->indexCount);
 				cout << "Index dropped." << endl;
 				delete cmd;
+			} else if (upperC.find("INSERT INTO") == 0) {
+				InsertParser parser;
+				InsertCMD *cmd = nullptr;
+				cmd = parser.parse(command);
+				cmd->insertInto(this->tables, this->tableCount);
+				cout << *cmd << endl;
+				cout << "Row inserted into table '" << cmd->getTableName() << "'." << endl;
+				delete cmd;
 			} else {
-				cout << "For now only CREATE TABLE, DROP TABLE DISPLAY TABLE, CREATE INDEX and DROP INDEX are available!" << endl;
+				cout << "For now only CREATE TABLE, DROP TABLE, DISPLAY TABLE, CREATE INDEX, DROP INDEX and INSERT INTO are available!" << endl;
 			}
 		} catch (const char *err) {
 			cout << "SQL Error: " << err << endl;

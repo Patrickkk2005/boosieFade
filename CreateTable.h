@@ -69,8 +69,6 @@ class Column {
 		setDatatype(typeString);
 		setSize(size);
 		setDefVal(defaultValue);
-
-		cout << "Para Constructor used" << endl;
 	}
 
 	Column(const Column &other) {
@@ -178,7 +176,66 @@ class CreateTableCMD {
 	Column *columns;
 	int columnCnt;
 	int columnCap;
+	string **rows;
+	int rowCnt;
+	int rowCap;
 	const int cmdID;
+
+	void freeRowsPointer() {
+		if (this->rows != nullptr) {
+			for (int i = 0; i < this->rowCap; i++) {
+				if (this->rows[i] != nullptr) {
+					delete[] this->rows[i];
+				}
+			}
+			delete[] this->rows;
+		}
+		this->rows = nullptr;
+		this->rowCnt = 0;
+		this->rowCap = 0;
+	}
+
+	void increaseRowCap() {
+		if (this->rowCnt < this->rowCap) {
+			return;
+		}
+		int newCap = (this->rowCap == 0) ? 4 : this->rowCap * 2;
+		string **newRows = new string *[newCap];
+		for (int i = 0; i < newCap; i++) {
+			newRows[i] = nullptr;
+		}
+		for (int i = 0; i < this->rowCnt; i++) {
+			newRows[i] = new string[this->columnCnt];
+			for (int j = 0; j < this->columnCnt; j++) {
+				newRows[i][j] = this->rows[i][j];
+			}
+			delete[] this->rows[i];
+		}
+		delete[] this->rows;
+		this->rows = newRows;
+		this->rowCap = newCap;
+	}
+
+	void copyRows(const CreateTableCMD &otherTable) {
+		if (otherTable.rowCap == 0 || otherTable.columnCnt == 0) {
+			this->rows = nullptr;
+			this->rowCnt = 0;
+			this->rowCap = 0;
+			return;
+		}
+		this->rowCap = otherTable.rowCap;
+		this->rowCnt = otherTable.rowCnt;
+		this->rows = new string *[this->rowCap];
+		for (int i = 0; i < this->rowCap; i++) {
+			this->rows[i] = nullptr;
+		}
+		for (int i = 0; i < this->rowCnt; i++) {
+			this->rows[i] = new string[this->columnCnt];
+			for (int j = 0; j < this->columnCnt; j++) {
+				this->rows[i][j] = otherTable.rows[i][j];
+			}
+		}
+	}
 
   public:
 	static int commandCounter;
@@ -187,6 +244,9 @@ class CreateTableCMD {
 		this->columns = nullptr;
 		this->columnCnt = 0;
 		this->columnCap = 0;
+		this->rows = nullptr;
+		this->rowCnt = 0;
+		this->rowCap = 0;
 	}
 
 	CreateTableCMD(const char *name) : cmdID(++commandCounter) {
@@ -197,6 +257,9 @@ class CreateTableCMD {
 		this->columns = nullptr;
 		this->columnCnt = 0;
 		this->columnCap = 0;
+		this->rows = nullptr;
+		this->rowCnt = 0;
+		this->rowCap = 0;
 	}
 
 	CreateTableCMD(const CreateTableCMD &otherTable) : cmdID(++commandCounter) {
@@ -208,6 +271,11 @@ class CreateTableCMD {
 		for (int i = 0; i < columnCnt; i++) {
 			this->columns[i] = otherTable.columns[i];
 		}
+
+		this->rows = nullptr;
+		this->rowCnt = 0;
+		this->rowCap = 0;
+		copyRows(otherTable);
 	}
 
 	CreateTableCMD &operator=(const CreateTableCMD &otherTable) {
@@ -216,21 +284,23 @@ class CreateTableCMD {
 		}
 
 		delete[] this->columns;
+		freeRowsPointer();
 
 		this->tableName = otherTable.tableName;
 		this->columnCnt = otherTable.columnCnt;
 		this->columnCap = otherTable.columnCap;
-
 		this->columns = new Column[this->columnCap];
 		for (int i = 0; i < columnCnt; i++) {
 			this->columns[i] = otherTable.columns[i];
 		}
+		copyRows(otherTable);
 
 		return *this;
 	}
 
 	~CreateTableCMD() {
 		delete[] this->columns;
+		freeRowsPointer();
 	}
 
 	void addColumn(const Column &col) {
@@ -256,10 +326,33 @@ class CreateTableCMD {
 		this->columns[columnCnt++] = col;
 	}
 
+	void addRow(const string *values, int valueCount) {
+		if (valueCount != this->columnCnt) {
+			throw "Too few values!";
+		}
+		increaseRowCap();
+		this->rows[this->rowCnt] = new string[this->columnCnt];
+		for (int i = 0; i < this->columnCnt; i++) {
+			this->rows[this->rowCnt][i] = values[i];
+		}
+		this->rowCnt++;
+	}
+
 	// GETTERS:
 
 	string getTableName() {
 		return this->tableName;
+	}
+
+	int getRowCount() {
+		return this->rowCnt;
+	}
+
+	string *getRow(int i) {
+		if (i < 0 || i >= this->rowCnt) {
+			throw "Invalid row index";
+		}
+		return this->rows[i];
 	}
 
 	int getColCnt() {
@@ -278,6 +371,7 @@ class CreateTableCMD {
 		   << "Create Table ID: " << cmd.cmdID << endl
 		   << "Table Name: " << cmd.tableName << endl
 		   << "Column Count: " << cmd.columnCnt << endl
+		   << "Row Count: " << cmd.rowCnt << endl
 		   << "Columns: " << endl;
 		for (int i = 0; i < cmd.columnCnt; i++) {
 			os << "	" << i + 1 << ". " << cmd.columns[i] << endl;
