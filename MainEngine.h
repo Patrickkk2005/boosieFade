@@ -5,6 +5,7 @@
 #include "DropIndex.h"
 #include "DropTable.h"
 #include "Insert.h"
+#include "Select.h"
 #include <iostream>
 #include <string.h>
 #include <string>
@@ -129,8 +130,15 @@ class MainEngine {
 				cout << *cmd << endl;
 				cout << "Row inserted into table '" << cmd->getTableName() << "'." << endl;
 				delete cmd;
+			} else if (upperC.find("SELECT") == 0) {
+				SelectParser parser;
+				SelectCMD *cmd = nullptr;
+				cmd = parser.parse(command);
+				cmd->selectFrom(this->tables, this->tableCount);
+				cout << *cmd;
+				delete cmd;
 			} else {
-				cout << "For now only CREATE TABLE, DROP TABLE, DISPLAY TABLE, CREATE INDEX, DROP INDEX and INSERT INTO are available!" << endl;
+				cout << "For now only CREATE TABLE, DROP TABLE, DISPLAY TABLE, CREATE INDEX, DROP INDEX, INSERT INTO and SELECT are available!" << endl;
 			}
 		} catch (const char *err) {
 			cout << "SQL Error: " << err << endl;
