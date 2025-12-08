@@ -180,10 +180,6 @@ class SelectCMD {
 	}
 
 	friend ostream &operator<<(ostream &os, SelectCMD &cmd) {
-		if (cmd.tableRef == nullptr) {
-			os << "Select a table";
-			return os;
-		}
 		CreateTableCMD &tbl = *cmd.tableRef;
 		os << "Selected rows from table '" << tbl.getTableName() << "':" << endl;
 		for (int i = 0; i < tbl.getRowCount(); i++) {
@@ -237,7 +233,7 @@ class SelectCMD {
 	void setTableName(const string &name) {
 		this->tableName = name;
 	}
-};
+}; // end of sekect cmd class
 
 class SelectParser {
   private:
