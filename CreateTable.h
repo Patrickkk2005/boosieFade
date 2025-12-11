@@ -195,6 +195,18 @@ class CreateTableCMD {
 		this->rowCap = 0;
 	}
 
+	void deleteRowAt(int rowIndex) {
+		if (rowIndex < 0 || rowIndex >= this->rowCnt) {
+			throw "Invalid row index";
+		}
+		delete[] this->rows[rowIndex];
+		for (int i = rowIndex; i < this->rowCnt - 1; i++) {
+			this->rows[i] = this->rows[i + 1];
+		}
+		this->rows[this->rowCnt - 1] = nullptr;
+		this->rowCnt--;
+	}
+
 	void increaseRowCap() {
 		if (this->rowCnt < this->rowCap) {
 			return;
@@ -379,6 +391,8 @@ class CreateTableCMD {
 		os << "_______________________________________" << endl;
 		return os;
 	}
+
+	friend class DeleteCMD;
 
 }; // end of create table command class
 

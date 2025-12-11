@@ -1,6 +1,7 @@
 #pragma once
 #include "CreateIndex.h"
 #include "CreateTable.h"
+#include "Delete.h"
 #include "DisplayTable.h"
 #include "DropIndex.h"
 #include "DropTable.h"
@@ -137,8 +138,15 @@ class MainEngine {
 				cmd->selectFrom(this->tables, this->tableCount);
 				cout << *cmd;
 				delete cmd;
+			} else if (upperC.find("DELETE FROM") == 0) {
+				DeleteParser parser;
+				DeleteCMD *cmd = nullptr;
+				cmd = parser.parse(command);
+				int deleted = cmd->deleteFromWhere(this->tables, this->tableCount);
+				cout << "Deleted " << deleted << " row(s) from table '" << cmd->getTableName() << "'." << endl;
+				delete cmd;
 			} else {
-				cout << "For now only CREATE TABLE, DROP TABLE, DISPLAY TABLE, CREATE INDEX, DROP INDEX, INSERT INTO and SELECT are available!" << endl;
+				cout << "For now only CREATE TABLE, DROP TABLE, DISPLAY TABLE, CREATE INDEX, DROP INDEX, INSERT INTO, SELECT and DELETE are available!" << endl;
 			}
 		} catch (const char *err) {
 			cout << "SQL Error: " << err << endl;
