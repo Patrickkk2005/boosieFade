@@ -6,11 +6,13 @@
 #include <string>
 using namespace std;
 
-class DeleteCMD {
+class UpdateCMD {
   private:
 	string tableName;
 	CreateTableCMD *tableRef;
-	bool hasWhere;
+	string setCol;
+	string setVal;
+	int setIdx;
 	string whereCol;
 	string whereVal;
 	int whereIdx;
@@ -33,73 +35,86 @@ class DeleteCMD {
 		return -1;
 	}
 
-	int deleteRowsWhere(CreateTableCMD &tbl, int colIdx, const string &value) {
-		if (colIdx < 0 || colIdx >= tbl.getColCnt()) {
-			throw "Invalid column index";
-		}
-		int deleted = 0;
-		for (int i = 0; i < tbl.getRowCount();) {
-			if (tbl.getCell(i, colIdx) == value) {
-				tbl.removeAt(i);
-				deleted++;
-			} else {
-				i++;
+	int updateRowsWhere(CreateTableCMD &tbl, int setColIdx, const string &newValue, int whereColIdx, const string &whereValue) {
+		int updated = 0;
+		for (int i = 0; i < tbl.getRowCount(); i++) {
+			if (tbl.getCell(i, whereColIdx) == whereValue) {
+				tbl.setCell(i, setColIdx, newValue);
+				updated++;
 			}
 		}
-		return deleted;
+		return updated;
 	}
 
   public:
-	DeleteCMD() {
+	UpdateCMD() {
 		this->tableName = "";
 		this->tableRef = nullptr;
-		this->hasWhere = false;
+		this->setCol = "";
+		this->setVal = "";
+		this->setIdx = -1;
 		this->whereCol = "";
 		this->whereVal = "";
 		this->whereIdx = -1;
 	}
-	DeleteCMD(const string &name) {
+
+	UpdateCMD(const string &name) {
 		if (name.empty()) {
 			throw "name cannot be empty!";
 		}
 		this->tableName = name;
 		this->tableRef = nullptr;
-		this->hasWhere = false;
+		this->setCol = "";
+		this->setVal = "";
+		this->setIdx = -1;
 		this->whereCol = "";
 		this->whereVal = "";
 		this->whereIdx = -1;
 	}
-	DeleteCMD(const DeleteCMD &other) {
+
+	UpdateCMD(const UpdateCMD &other) {
 		this->tableName = other.tableName;
 		this->tableRef = other.tableRef;
-		this->hasWhere = other.hasWhere;
+		this->setCol = other.setCol;
+		this->setVal = other.setVal;
+		this->setIdx = other.setIdx;
 		this->whereCol = other.whereCol;
 		this->whereVal = other.whereVal;
 		this->whereIdx = other.whereIdx;
 	}
-	DeleteCMD &operator=(const DeleteCMD &other) {
+
+	UpdateCMD &operator=(const UpdateCMD &other) {
 		if (this == &other) {
 			return *this;
 		}
 		this->tableName = other.tableName;
 		this->tableRef = other.tableRef;
-		this->hasWhere = other.hasWhere;
+		this->setCol = other.setCol;
+		this->setVal = other.setVal;
+		this->setIdx = other.setIdx;
 		this->whereCol = other.whereCol;
 		this->whereVal = other.whereVal;
 		this->whereIdx = other.whereIdx;
 		return *this;
 	}
-	~DeleteCMD() {
+
+	~UpdateCMD() {
 		this->tableRef = nullptr;
 	}
+
 	void setTableName(const string &name) {
 		if (name.empty()) {
 			throw "name cannot be empty!";
 		}
 		this->tableName = name;
 	}
-	void setWhere(const string &col, const string &val) {
-		this->hasWhere = true;
+
+	void setSetClause(const string &col, const string &val) {
+		this->setCol = col;
+		this->setVal = val;
+	}
+
+	void setWhereClause(const string &col, const string &val) {
 		this->whereCol = col;
 		this->whereVal = val;
 	}
@@ -107,7 +122,8 @@ class DeleteCMD {
 	string getTableName() {
 		return this->tableName;
 	}
-	int deleteFromWhere(CreateTableCMD *tables, int tableCount) {
+
+	int updateWhere(CreateTableCMD *tables, int tableCount) {
 		int tblIdx = findTableIndex(tables, tableCount);
 		if (tblIdx == -1) {
 			throw "Table does not exist!";
@@ -115,19 +131,27 @@ class DeleteCMD {
 		CreateTableCMD &tbl = tables[tblIdx];
 		this->tableRef = &tbl;
 
-		if (!this->hasWhere) {
-			throw "WHERE clause is required for DELETE";
+		if (this->setCol.empty()) {
+			throw "SET clause is required for UPDATE";
+		}
+		this->setIdx = findColIndex(tbl, this->setCol);
+		if (this->setIdx == -1) {
+			throw "Column in SET clause does not exist!";
+		}
+
+		if (this->whereCol.empty()) {
+			throw "WHERE clause is required for UPDATE";
 		}
 		this->whereIdx = findColIndex(tbl, this->whereCol);
 		if (this->whereIdx == -1) {
 			throw "Column in WHERE clause does not exist!";
 		}
 
-		return deleteRowsWhere(tbl, this->whereIdx, this->whereVal);
+		return updateRowsWhere(tbl, this->setIdx, this->setVal, this->whereIdx, this->whereVal);
 	}
 };
 
-class DeleteParser {
+class UpdateParser {
   private:
 	bool isKeyword(Token &tok, const string &keyword) {
 		if (tok.type != TokenType::KEYWORD) {
@@ -145,31 +169,62 @@ class DeleteParser {
 	}
 
   public:
-	DeleteCMD *parse(const string &input) {
+	UpdateCMD *parse(const string &input) {
 		Tokenizer tokenizer(input);
 		TokenList *tokens = tokenizer.makeTokens();
 
-		if (tokens->getTokenCount() < 6) {
+		if (tokens->getTokenCount() < 8) {
 			delete tokens;
-			throw "Invalid DELETE command: too few tokens";
+			throw "Invalid UPDATE command: too few tokens";
 		}
 
-		if (!isKeyword((*tokens)[0], "DELETE") || !isKeyword((*tokens)[1], "FROM")) {
+		if (!isKeyword((*tokens)[0], "UPDATE")) {
 			delete tokens;
 			throw "Invalid command start!";
 		}
 
-		if ((*tokens)[2].type != TokenType::STRING) {
+		if ((*tokens)[1].type != TokenType::STRING) {
 			delete tokens;
 			throw "Missing table name!";
 		}
-		DeleteCMD *cmd = new DeleteCMD((*tokens)[2].content);
+		UpdateCMD *cmd = new UpdateCMD((*tokens)[1].content);
 
-		int pos = 3;
+		int pos = 2;
+		if (pos >= tokens->getTokenCount() || !isKeyword((*tokens)[pos], "SET")) {
+			delete cmd;
+			delete tokens;
+			throw "UPDATE requires SET";
+		}
+		pos++;
+
+		if (pos >= tokens->getTokenCount() || ((*tokens)[pos].type != TokenType::STRING && (*tokens)[pos].type != TokenType::KEYWORD)) {
+			delete cmd;
+			delete tokens;
+			throw "Missing column name in SET";
+		}
+		string setCol = (*tokens)[pos].content;
+		pos++;
+
+		if (pos >= tokens->getTokenCount() || (*tokens)[pos].type != TokenType::SYMBOL || (*tokens)[pos].content != "=") {
+			delete cmd;
+			delete tokens;
+			throw "Missing '=' in SET";
+		}
+		pos++;
+
+		if (pos >= tokens->getTokenCount() || ((*tokens)[pos].type != TokenType::STRING && (*tokens)[pos].type != TokenType::NUMBER && (*tokens)[pos].type != TokenType::KEYWORD)) {
+			delete cmd;
+			delete tokens;
+			throw "Missing value in SET";
+		}
+		string setVal = (*tokens)[pos].content;
+		cmd->setSetClause(setCol, setVal);
+		pos++;
+
 		if (pos >= tokens->getTokenCount() || !isKeyword((*tokens)[pos], "WHERE")) {
 			delete cmd;
 			delete tokens;
-			throw "DELETE requires WHERE";
+			throw "UPDATE requires WHERE";
 		}
 		pos++;
 
@@ -178,7 +233,7 @@ class DeleteParser {
 			delete tokens;
 			throw "Missing column name in WHERE";
 		}
-		string col = (*tokens)[pos].content;
+		string whereCol = (*tokens)[pos].content;
 		pos++;
 
 		if (pos >= tokens->getTokenCount() || (*tokens)[pos].type != TokenType::SYMBOL || (*tokens)[pos].content != "=") {
@@ -193,8 +248,8 @@ class DeleteParser {
 			delete tokens;
 			throw "Missing value in WHERE";
 		}
-		string val = (*tokens)[pos].content;
-		cmd->setWhere(col, val);
+		string whereVal = (*tokens)[pos].content;
+		cmd->setWhereClause(whereCol, whereVal);
 
 		delete tokens;
 		return cmd;

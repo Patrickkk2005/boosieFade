@@ -211,7 +211,11 @@ class CreateTableCMD {
 		if (this->rowCnt < this->rowCap) {
 			return;
 		}
-		int newCap = (this->rowCap == 0) ? 4 : this->rowCap * 2;
+		int newCap;
+		if (this->rowCap == 0)
+			newCap = 4;
+		else
+			newCap = this->rowCap * 2;
 		string **newRows = new string *[newCap];
 		for (int i = 0; i < newCap; i++) {
 			newRows[i] = nullptr;
@@ -371,6 +375,16 @@ class CreateTableCMD {
 		return this->columnCnt;
 	}
 
+	string getCell(int rowIdx, int colIdx) {
+		if (rowIdx < 0 || rowIdx >= this->rowCnt) {
+			throw "row index out of bounds!";
+		}
+		if (colIdx < 0 || colIdx >= this->columnCnt) {
+			throw "column index out of bounds!";
+		}
+		return this->rows[rowIdx][colIdx];
+	}
+
 	Column &operator[](int i) {
 		if (i < 0 || i >= columnCnt) {
 			throw "Invalid Index";
@@ -392,7 +406,19 @@ class CreateTableCMD {
 		return os;
 	}
 
-	friend class DeleteCMD;
+	void removeAt(int rowIdx) {
+		deleteRowAt(rowIdx);
+	}
+
+	void setCell(int rowIdx, int colIdx, const string &value) {
+		if (rowIdx < 0 || rowIdx >= this->rowCnt) {
+			throw "row index out of bounds!";
+		}
+		if (colIdx < 0 || colIdx >= this->columnCnt) {
+			throw "column index out of bounds!";
+		}
+		this->rows[rowIdx][colIdx] = value;
+	}
 
 }; // end of create table command class
 

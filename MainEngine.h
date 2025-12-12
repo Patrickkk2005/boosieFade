@@ -7,6 +7,7 @@
 #include "DropTable.h"
 #include "Insert.h"
 #include "Select.h"
+#include "Update.h"
 #include <iostream>
 #include <string.h>
 #include <string>
@@ -145,8 +146,15 @@ class MainEngine {
 				int deleted = cmd->deleteFromWhere(this->tables, this->tableCount);
 				cout << "Deleted " << deleted << " row(s) from table '" << cmd->getTableName() << "'." << endl;
 				delete cmd;
+			} else if (upperC.find("UPDATE") == 0) {
+				UpdateParser parser;
+				UpdateCMD *cmd = nullptr;
+				cmd = parser.parse(command);
+				int updated = cmd->updateWhere(this->tables, this->tableCount);
+				cout << "Updated " << updated << " row(s) in table '" << cmd->getTableName() << "'." << endl;
+				delete cmd;
 			} else {
-				cout << "For now only CREATE TABLE, DROP TABLE, DISPLAY TABLE, CREATE INDEX, DROP INDEX, INSERT INTO, SELECT and DELETE are available!" << endl;
+				cout << "For now only CREATE TABLE, DROP TABLE, DISPLAY TABLE, CREATE INDEX, DROP INDEX, INSERT INTO, SELECT, DELETE and UPDATE are available!" << endl;
 			}
 		} catch (const char *err) {
 			cout << "SQL Error: " << err << endl;
