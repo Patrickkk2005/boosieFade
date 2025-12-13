@@ -62,7 +62,6 @@ enum TokenType { KEYWORD,
 struct Token {
 	TokenType type;
 	string content;
-	int line;
 };
 
 class TokenList {
@@ -159,20 +158,18 @@ class Tokenizer {
 				else
 					token.type = TokenType::STRING;
 				token.content = word;
-				token.line = 1;
 				tokens->addToken(token);
 			} else if (StringFuncs::isDigit(current)) {
 				string number;
-				while (pos < input.length() && StringFuncs::isDigit(input[pos])) {
+				while (pos < input.length() && StringFuncs::isDigit(input[pos]) || input[pos] == '.') {
 					number += input[pos];
 					pos++;
 				}
 				Token token;
 				token.type = TokenType::NUMBER;
 				token.content = number;
-				token.line = 1;
 				tokens->addToken(token);
-			} else if (current == '(' || current == ')' || current == '.' || current == '*' || current == '=' || current == ';' || current == ',') {
+			} else if (current == '(' || current == ')' || current == '.' || current == '*' || current == '=' || current == ';' || current == ',' || current == '\'') {
 				Token token;
 				token.type = TokenType::SYMBOL;
 				token.content = string(1, current);

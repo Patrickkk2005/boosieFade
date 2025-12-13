@@ -109,12 +109,12 @@ class UpdateCMD {
 		this->tableName = name;
 	}
 
-	void setSetClause(const string &col, const string &val) {
+	void setSet(const string &col, const string &val) {
 		this->setCol = col;
 		this->setVal = val;
 	}
 
-	void setWhereClause(const string &col, const string &val) {
+	void setWhere(const string &col, const string &val) {
 		this->whereCol = col;
 		this->whereVal = val;
 	}
@@ -218,7 +218,7 @@ class UpdateParser {
 			throw "Missing value in SET";
 		}
 		string setVal = (*tokens)[pos].content;
-		cmd->setSetClause(setCol, setVal);
+		cmd->setSet(setCol, setVal);
 		pos++;
 
 		if (pos >= tokens->getTokenCount() || !isKeyword((*tokens)[pos], "WHERE")) {
@@ -249,7 +249,7 @@ class UpdateParser {
 			throw "Missing value in WHERE";
 		}
 		string whereVal = (*tokens)[pos].content;
-		cmd->setWhereClause(whereCol, whereVal);
+		cmd->setWhere(whereCol, whereVal);
 
 		delete tokens;
 		return cmd;

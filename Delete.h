@@ -107,6 +107,7 @@ class DeleteCMD {
 	string getTableName() {
 		return this->tableName;
 	}
+
 	int deleteFromWhere(CreateTableCMD *tables, int tableCount) {
 		int tblIdx = findTableIndex(tables, tableCount);
 		if (tblIdx == -1) {
