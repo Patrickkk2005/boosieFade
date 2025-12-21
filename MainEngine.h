@@ -1,10 +1,12 @@
 #pragma once
+#include "CfgManager.h"
 #include "CreateIndex.h"
 #include "CreateTable.h"
 #include "Delete.h"
 #include "DisplayTable.h"
 #include "DropIndex.h"
 #include "DropTable.h"
+#include "FileReader.h"
 #include "Insert.h"
 #include "Select.h"
 #include "Update.h"
@@ -21,6 +23,7 @@ class MainEngine {
 	CreateIndexCMD *indexes;
 	int indexCount;
 	int indexCap;
+	ConfigurationManager configManager;
 
 	void increaseTableCap() {
 		if (this->tableCount < this->tableCap) {
@@ -76,6 +79,10 @@ class MainEngine {
 		return -1;
 	}
 
+	string getConfigDirectory() const {
+		return this->configManager.getConfigDirectory();
+	}
+
 	void storeTable(CreateTableCMD &cmd) {
 		if (findTableIndex(cmd.getTableName()) != -1) {
 			throw "Table already exists!";
@@ -95,13 +102,18 @@ class MainEngine {
 				CreateTableCMD *cmd = nullptr;
 				cmd = parser.parse(command);
 				storeTable(*cmd);
+				// for file
+				configManager.saveTableSchema(*cmd);
 				cout << "Table '" << cmd->getTableName() << "' created." << endl;
 				delete cmd;
 			} else if (upperC.find("DROP TABLE") == 0) {
 				DropTableParser parser;
 				DropTableCMD *cmd = nullptr;
 				cmd = parser.parse(command);
+				string tableName = cmd->getTableName();
 				cmd->drptbl(this->tables, this->tableCount);
+				// for file
+				configManager.deleteTableSchema(tableName);
 				cout << "Table dropped." << endl;
 				delete cmd;
 			} else if (upperC.find("DISPLAY TABLE") == 0) {
@@ -173,6 +185,7 @@ class MainEngine {
 		this->indexes = nullptr;
 		this->indexCount = 0;
 		this->indexCap = 0;
+		this->configManager = ConfigurationManager();
 	}
 
 	~MainEngine() {
@@ -181,6 +194,7 @@ class MainEngine {
 	}
 
 	void runapp() {
+		cout << "Configuration directory: " << this->configManager.getConfigDirectory() << endl;
 		string input;
 		cout << "SQLite ENGINE V1 (type 'exit' to quit)" << endl;
 		while (true) {
@@ -193,6 +207,8 @@ class MainEngine {
 
 			if (input.empty()) {
 				cout << "Please enter a command";
+				cout << endl;
+				continue;
 			}
 
 			processCMD(input);

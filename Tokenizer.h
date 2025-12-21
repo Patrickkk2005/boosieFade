@@ -7,7 +7,7 @@ using namespace std;
 
 class StringFuncs { // BECAUSE WE CANNOT USE CSTRING :(
   public:
-	int stringTOint(const string &s) {
+	static int stringTOint(const string &s) {
 		int result = 0;
 		bool neg = false;
 		int i = 0;

@@ -25,6 +25,11 @@ class DropTableCMD {
 		}
 		this->tableName = name;
 	}
+
+	string getTableName() const {
+		return this->tableName;
+	}
+
 	void drptbl(CreateTableCMD *tables, int &tableCount) {
 		int idx = findTableIndex(tables, tableCount);
 		if (idx == -1) {
