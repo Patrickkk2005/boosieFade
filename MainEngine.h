@@ -6,6 +6,7 @@
 #include "DisplayTable.h"
 #include "DropIndex.h"
 #include "DropTable.h"
+#include "FileManager.h"
 #include "FileReader.h"
 #include "Insert.h"
 #include "Select.h"
@@ -24,6 +25,7 @@ class MainEngine {
 	int indexCount;
 	int indexCap;
 	ConfigurationManager configManager;
+	FileManager fileManager;
 
 	void increaseTableCap() {
 		if (this->tableCount < this->tableCap) {
@@ -83,6 +85,10 @@ class MainEngine {
 		return this->configManager.getConfigDirectory();
 	}
 
+	string getDataDirectory() const {
+		return this->fileManager.getDataDir();
+	}
+
 	void storeTable(CreateTableCMD &cmd) {
 		if (findTableIndex(cmd.getTableName()) != -1) {
 			throw "Table already exists!";
@@ -102,8 +108,9 @@ class MainEngine {
 				CreateTableCMD *cmd = nullptr;
 				cmd = parser.parse(command);
 				storeTable(*cmd);
-				// for file
+				// file manipulations
 				configManager.saveTableSchema(*cmd);
+				fileManager.createDataFile(cmd->getTableName());
 				cout << "Table '" << cmd->getTableName() << "' created." << endl;
 				delete cmd;
 			} else if (upperC.find("DROP TABLE") == 0) {
@@ -112,8 +119,9 @@ class MainEngine {
 				cmd = parser.parse(command);
 				string tableName = cmd->getTableName();
 				cmd->drptbl(this->tables, this->tableCount);
-				// for file
+				// file manipulations
 				configManager.deleteTableSchema(tableName);
+				fileManager.delDataFile(tableName);
 				cout << "Table dropped." << endl;
 				delete cmd;
 			} else if (upperC.find("DISPLAY TABLE") == 0) {
@@ -141,6 +149,10 @@ class MainEngine {
 				InsertCMD *cmd = nullptr;
 				cmd = parser.parse(command);
 				cmd->insertInto(this->tables, this->tableCount);
+				int tableIdx = findTableIndex(cmd->getTableName());
+				if (tableIdx != -1) {
+					fileManager.saveTableData(this->tables[tableIdx]);
+				}
 				cout << *cmd << endl;
 				cout << "Row inserted into table '" << cmd->getTableName() << "'." << endl;
 				delete cmd;
@@ -156,6 +168,10 @@ class MainEngine {
 				DeleteCMD *cmd = nullptr;
 				cmd = parser.parse(command);
 				int deleted = cmd->deleteFromWhere(this->tables, this->tableCount);
+				int tableIdx = findTableIndex(cmd->getTableName());
+				if (tableIdx != -1) {
+					fileManager.saveTableData(this->tables[tableIdx]);
+				}
 				cout << "Deleted " << deleted << " row(s) from table '" << cmd->getTableName() << "'." << endl;
 				delete cmd;
 			} else if (upperC.find("UPDATE") == 0) {
@@ -163,6 +179,10 @@ class MainEngine {
 				UpdateCMD *cmd = nullptr;
 				cmd = parser.parse(command);
 				int updated = cmd->updateWhere(this->tables, this->tableCount);
+				int tableIdx = findTableIndex(cmd->getTableName());
+				if (tableIdx != -1) {
+					fileManager.saveTableData(this->tables[tableIdx]);
+				}
 				cout << "Updated " << updated << " row(s) in table '" << cmd->getTableName() << "'." << endl;
 				delete cmd;
 			} else {
@@ -186,6 +206,7 @@ class MainEngine {
 		this->indexCount = 0;
 		this->indexCap = 0;
 		this->configManager = ConfigurationManager();
+		this->fileManager = FileManager();
 	}
 
 	~MainEngine() {
@@ -195,6 +216,7 @@ class MainEngine {
 
 	void runapp() {
 		cout << "Configuration directory: " << this->configManager.getConfigDirectory() << endl;
+		cout << "Data directory: " << this->fileManager.getDataDir() << endl;
 		string input;
 		cout << "SQLite ENGINE V1 (type 'exit' to quit)" << endl;
 		while (true) {
