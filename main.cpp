@@ -6,6 +6,8 @@
 using namespace std;
 
 int CreateTableCMD::commandCounter = 0;
+int ReportGenerator::selectCounter = 0;
+int ReportGenerator::displayCounter = 0;
 
 int main() {
 	/*Column col1("userID", "NUMBER", 10, "0"); // test with param constructor
@@ -38,7 +40,7 @@ int main() {
 
 	cout << command2;*/
 
-	// REAL TEST
+	// REAL STUFF
 
 	MainEngine engine;
 	engine.runapp();

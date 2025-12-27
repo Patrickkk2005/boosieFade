@@ -25,7 +25,6 @@ class DisplayTableCMD {
 		cout << tables[idx];
 	}
 
-  private:
 	int findTableIndex(CreateTableCMD *tables, int tableCount) {
 		for (int i = 0; i < tableCount; i++) {
 			if (tables[i].getTableName() == this->tableName) {

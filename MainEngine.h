@@ -9,6 +9,7 @@
 #include "FileManager.h"
 #include "FileReader.h"
 #include "Insert.h"
+#include "ReportGenerator.h"
 #include "Select.h"
 #include "Update.h"
 #include <iostream>
@@ -26,6 +27,7 @@ class MainEngine {
 	int indexCap;
 	ConfigurationManager configManager;
 	FileManager fileManager;
+	ReportGenerator reportGenerator;
 
 	void increaseTableCap() {
 		if (this->tableCount < this->tableCap) {
@@ -129,6 +131,10 @@ class MainEngine {
 				DisplayTableCMD *cmd = nullptr;
 				cmd = parser.parse(command);
 				cmd->dsptbl(this->tables, this->tableCount);
+				int tableIdx = findTableIndex(cmd->tableName);
+				if (tableIdx != -1) {
+					reportGenerator.generateDisplayReport(cmd->tableName, this->tables[tableIdx]);
+				}
 				delete cmd;
 			} else if (upperC.find("CREATE INDEX") == 0) {
 				CreateIndexParser parser;
@@ -161,6 +167,10 @@ class MainEngine {
 				SelectCMD *cmd = nullptr;
 				cmd = parser.parse(command);
 				cmd->selectFrom(this->tables, this->tableCount);
+				int tableIdx = findTableIndex(cmd->getTableName());
+				if (tableIdx != -1) {
+					reportGenerator.generateSelectReport(cmd->getTableName(), this->tables[tableIdx]);
+				}
 				cout << *cmd;
 				delete cmd;
 			} else if (upperC.find("DELETE FROM") == 0) {

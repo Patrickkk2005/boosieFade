@@ -50,6 +50,26 @@ class StringFuncs { // BECAUSE WE CANNOT USE CSTRING :(
 		}
 		return c;
 	}
+
+	static string intTOstring(int num) {
+		if (num == 0) {
+			return "0";
+		}
+		bool neg = false;
+		if (num < 0) {
+			neg = true;
+			num = -num;
+		}
+		string result = "";
+		while (num > 0) {
+			result = (char)('0' + (num % 10)) + result;
+			num = num / 10;
+		}
+		if (neg) {
+			result = "-" + result;
+		}
+		return result;
+	}
 }; // end of string functions class
 
 enum TokenType { KEYWORD,
