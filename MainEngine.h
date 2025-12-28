@@ -8,8 +8,9 @@
 #include "DropTable.h"
 #include "FileManager.h"
 #include "FileReader.h"
+#include "Import.h"
 #include "Insert.h"
-#include "ReportGenerator.h"
+#include "RepGen.h"
 #include "Select.h"
 #include "Update.h"
 #include <iostream>
@@ -195,8 +196,19 @@ class MainEngine {
 				}
 				cout << "Updated " << updated << " row(s) in table '" << cmd->getTableName() << "'." << endl;
 				delete cmd;
+			} else if (upperC.find("IMPORT") == 0) {
+				ImportParser parser;
+				ImportCMD *cmd = nullptr;
+				cmd = parser.parse(command);
+				cmd->importCSV(this->tables, this->tableCount);
+				int tableIdx = findTableIndex(cmd->getTableName());
+				if (tableIdx != -1) {
+					fileManager.saveTableData(this->tables[tableIdx]);
+				}
+				cout << *cmd << endl;
+				delete cmd;
 			} else {
-				cout << "For now only CREATE TABLE, DROP TABLE, DISPLAY TABLE, CREATE INDEX, DROP INDEX, INSERT INTO, SELECT, DELETE and UPDATE are available!" << endl;
+				cout << "For now only CREATE TABLE, DROP TABLE, DISPLAY TABLE, CREATE INDEX, DROP INDEX, INSERT INTO, SELECT, DELETE, UPDATE, and IMPORT are available!" << endl;
 			}
 		} catch (const char *err) {
 			cout << "SQL Error: " << err << endl;
