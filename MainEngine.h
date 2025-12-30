@@ -29,7 +29,9 @@ class MainEngine {
 	ConfigurationManager configManager;
 	FileManager fileManager;
 	ReportGenerator reportGenerator;
+	CommandFileReader fileReader;
 
+  public:
 	void increaseTableCap() {
 		if (this->tableCount < this->tableCap) {
 			return;
@@ -81,6 +83,21 @@ class MainEngine {
 				return i;
 			}
 		}
+
+		if (configManager.tableSchemaExists(name)) {
+			CreateTableCMD *table = configManager.loadTableSchema(name);
+			if (table != nullptr) {
+				fileManager.loadTableData(*table);
+				increaseTableCap();
+				this->tables[this->tableCount] = *table;
+				this->tableCount++;
+				delete table;
+				return this->tableCount - 1;
+			}
+		} else {
+			cout << "No .cfg found on disk." << endl;
+		}
+
 		return -1;
 	}
 
@@ -93,8 +110,10 @@ class MainEngine {
 	}
 
 	void storeTable(CreateTableCMD &cmd) {
-		if (findTableIndex(cmd.getTableName()) != -1) {
-			throw "Table already exists!";
+		for (int i = 0; i < this->tableCount; i++) {
+			if (this->tables[i].getTableName() == cmd.getTableName()) {
+				throw "Table already exists!";
+			}
 		}
 		increaseTableCap();
 		this->tables[this->tableCount++] = cmd;
@@ -131,11 +150,14 @@ class MainEngine {
 				DisplayTableParser parser;
 				DisplayTableCMD *cmd = nullptr;
 				cmd = parser.parse(command);
-				cmd->dsptbl(this->tables, this->tableCount);
 				int tableIdx = findTableIndex(cmd->tableName);
-				if (tableIdx != -1) {
-					reportGenerator.generateDisplayReport(cmd->tableName, this->tables[tableIdx]);
+				if (tableIdx == -1) {
+					delete cmd;
+					throw "Table does not exist!";
 				}
+				cmd->dsptbl(this->tables, this->tableCount);
+				// file manipulations
+				reportGenerator.generateDisplayReport(cmd->tableName, this->tables[tableIdx]);
 				delete cmd;
 			} else if (upperC.find("CREATE INDEX") == 0) {
 				CreateIndexParser parser;
@@ -155,11 +177,14 @@ class MainEngine {
 				InsertParser parser;
 				InsertCMD *cmd = nullptr;
 				cmd = parser.parse(command);
-				cmd->insertInto(this->tables, this->tableCount);
 				int tableIdx = findTableIndex(cmd->getTableName());
-				if (tableIdx != -1) {
-					fileManager.saveTableData(this->tables[tableIdx]);
+				if (tableIdx == -1) {
+					delete cmd;
+					throw "Table does not exist!";
 				}
+				cmd->insertInto(this->tables, this->tableCount);
+				// file manipulations
+				fileManager.saveTableData(this->tables[tableIdx]);
 				cout << *cmd << endl;
 				cout << "Row inserted into table '" << cmd->getTableName() << "'." << endl;
 				delete cmd;
@@ -167,44 +192,56 @@ class MainEngine {
 				SelectParser parser;
 				SelectCMD *cmd = nullptr;
 				cmd = parser.parse(command);
-				cmd->selectFrom(this->tables, this->tableCount);
 				int tableIdx = findTableIndex(cmd->getTableName());
-				if (tableIdx != -1) {
-					reportGenerator.generateSelectReport(cmd->getTableName(), this->tables[tableIdx]);
+				if (tableIdx == -1) {
+					delete cmd;
+					throw "Table does not exist!";
 				}
+				cmd->selectFrom(this->tables, this->tableCount);
+				// file manipulations
+				reportGenerator.generateSelectReport(cmd->getTableName(), this->tables[tableIdx]);
 				cout << *cmd;
 				delete cmd;
 			} else if (upperC.find("DELETE FROM") == 0) {
 				DeleteParser parser;
 				DeleteCMD *cmd = nullptr;
 				cmd = parser.parse(command);
-				int deleted = cmd->deleteFromWhere(this->tables, this->tableCount);
 				int tableIdx = findTableIndex(cmd->getTableName());
-				if (tableIdx != -1) {
-					fileManager.saveTableData(this->tables[tableIdx]);
+				if (tableIdx == -1) {
+					delete cmd;
+					throw "Table does not exist!";
 				}
+				int deleted = cmd->deleteFromWhere(this->tables, this->tableCount);
+				// file manipulations
+				fileManager.saveTableData(this->tables[tableIdx]);
 				cout << "Deleted " << deleted << " row(s) from table '" << cmd->getTableName() << "'." << endl;
 				delete cmd;
 			} else if (upperC.find("UPDATE") == 0) {
 				UpdateParser parser;
 				UpdateCMD *cmd = nullptr;
 				cmd = parser.parse(command);
-				int updated = cmd->updateWhere(this->tables, this->tableCount);
 				int tableIdx = findTableIndex(cmd->getTableName());
-				if (tableIdx != -1) {
-					fileManager.saveTableData(this->tables[tableIdx]);
+				if (tableIdx == -1) {
+					delete cmd;
+					throw "Table does not exist!";
 				}
+				int updated = cmd->updateWhere(this->tables, this->tableCount);
+				// file manipulations
+				fileManager.saveTableData(this->tables[tableIdx]);
 				cout << "Updated " << updated << " row(s) in table '" << cmd->getTableName() << "'." << endl;
 				delete cmd;
 			} else if (upperC.find("IMPORT") == 0) {
 				ImportParser parser;
 				ImportCMD *cmd = nullptr;
 				cmd = parser.parse(command);
-				cmd->importCSV(this->tables, this->tableCount);
 				int tableIdx = findTableIndex(cmd->getTableName());
-				if (tableIdx != -1) {
-					fileManager.saveTableData(this->tables[tableIdx]);
+				if (tableIdx == -1) {
+					delete cmd;
+					throw "Table does not exist!";
 				}
+				cmd->importCSV(this->tables, this->tableCount);
+				// file manipulations
+				fileManager.saveTableData(this->tables[tableIdx]);
 				cout << *cmd << endl;
 				delete cmd;
 			} else {

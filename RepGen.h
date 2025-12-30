@@ -57,7 +57,7 @@ class ReportGenerator {
 		file << "========================================" << endl;
 		file << "Columns:" << endl;
 		for (int i = 0; i < table.getColCnt(); i++) {
-			file << "  [" << i << "] " << table[i].getName() << endl;
+			file << table[i].getName() << endl;
 		}
 		file << endl;
 		file << "Rows (" << table.getRowCount() << " total):" << endl;
@@ -99,7 +99,7 @@ class ReportGenerator {
 		file << "Column Details:" << endl;
 		for (int i = 0; i < table.getColCnt(); i++) {
 			Column &col = table[i];
-			file << "  [" << i << "] Name: " << col.getName() << endl;
+			file << "  Name: " << col.getName() << endl;
 			file << "      Size: " << col.getSize() << endl;
 		}
 		file << endl;

@@ -13,22 +13,26 @@ enum DataType { INTEGER,
 class CreateTableUtils {
   public:
 	static DataType conversionStringToDT(const string &s) {
-		if (s == "INTEGER")
+		string upper = s;
+		for (char &c : upper) {
+			c = StringFuncs::toUpper(c);
+		}
+		if (upper == "INTEGER")
 			return DataType::INTEGER;
-		if (s == "FLOAT")
+		if (upper == "FLOAT")
 			return DataType::FLOAT;
-		if (s == "TEXT")
+		if (upper == "TEXT")
 			return DataType::TEXT;
 		return DataType::UNKNOW;
 	}
 
 	static string conversionDTtoString(DataType type) {
 		if (type == INTEGER)
-			return "integer";
+			return "INTEGER";
 		if (type == FLOAT)
-			return "float";
+			return "FLOAT";
 		if (type == TEXT)
-			return "text";
+			return "TEXT";
 		if (type == UNKNOW)
 			throw "invalid datatype";
 		return "UNKNOWN";

@@ -112,12 +112,12 @@ class ImportParser {
 
 		string tableName = (*tokens)[1].content;
 
-		if ((*tokens)[2].type != TokenType::STRING) {
-			delete tokens;
-			throw "Missing CSV filename";
+		int pos = input.find(tableName);
+		pos = pos + tableName.length();
+		while (pos < input.length() && input[pos] == ' ') {
+			pos++;
 		}
-
-		string csvFilename = (*tokens)[2].content;
+		string csvFilename = input.substr(pos);
 
 		delete tokens;
 		return new ImportCMD(tableName, csvFilename);
