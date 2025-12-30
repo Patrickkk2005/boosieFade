@@ -140,6 +140,11 @@ class MainEngine {
 				DropTableCMD *cmd = nullptr;
 				cmd = parser.parse(command);
 				string tableName = cmd->getTableName();
+				int tableIdx = findTableIndex(cmd->getTableName());
+				if (tableIdx == -1) {
+					delete cmd;
+					throw "Table does not exist!";
+				}
 				cmd->drptbl(this->tables, this->tableCount);
 				// file manipulations
 				configManager.deleteTableSchema(tableName);
@@ -273,9 +278,32 @@ class MainEngine {
 		delete[] this->indexes;
 	}
 
-	void runapp() {
+	void commandsFromFiles(int argc, char **argv) {
+		if (argc <= 1) {
+			return;
+		}
+
+		fileReader.loadCommandsFromArguments(argc, argv);
+		if (fileReader.hasCommands()) {
+			cout << "Executing commands from files" << endl;
+			for (int i = 0; i < fileReader.getCommandCount(); i++) {
+				string cmd = fileReader.getCommand(i);
+				processCMD(cmd);
+			}
+			cout << "Finished executing commands from files"
+				 << endl;
+		}
+	}
+
+	void runapp(int argc, char **argv) {
+		// i didn't know if this was optional so i added it
 		cout << "Configuration directory: " << this->configManager.getConfigDirectory() << endl;
 		cout << "Data directory: " << this->fileManager.getDataDir() << endl;
+
+		if (argc > 1) {
+			commandsFromFiles(argc, argv);
+		}
+
 		string input;
 		cout << "SQLite ENGINE V1 (type 'exit' to quit)" << endl;
 		while (true) {

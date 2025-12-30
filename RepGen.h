@@ -42,6 +42,7 @@ class ReportGenerator {
 		return this->reportDir;
 	}
 
+	// to do: edit for select all or some columns only
 	void generateSelectReport(const string &tableName, CreateTableCMD &table) {
 
 		string filename = this->reportDir + "SELECT_" + StringFuncs::intTOstring(this->selectID) + ".txt";

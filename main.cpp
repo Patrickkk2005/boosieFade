@@ -9,7 +9,7 @@ int CreateTableCMD::commandCounter = 0;
 int ReportGenerator::selectCounter = 0;
 int ReportGenerator::displayCounter = 0;
 
-int main() {
+int main(int argc, char **argv) {
 	/*Column col1("userID", "NUMBER", 10, "0"); // test with param constructor
 	cout << "col1: " << col1 << endl;
 	Column col2; // normal assig
@@ -43,5 +43,5 @@ int main() {
 	// REAL STUFF
 
 	MainEngine engine;
-	engine.runapp();
+	engine.runapp(argc, argv);
 };
