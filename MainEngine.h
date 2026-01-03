@@ -204,7 +204,12 @@ class MainEngine {
 				}
 				cmd->selectFrom(this->tables, this->tableCount);
 				// file manipulations
-				reportGenerator.generateSelectReport(cmd->getTableName(), this->tables[tableIdx]);
+				int *colIdxArr = new int[cmd->getColIdxCount()];
+				for (int i = 0; i < cmd->getColIdxCount(); i++) {
+					colIdxArr[i] = cmd->getColIdx(i);
+				}
+				reportGenerator.generateSelectReport(cmd->getTableName(), this->tables[tableIdx], colIdxArr, cmd->getColIdxCount(), cmd->getHasWhere(), cmd->getWhereIdx(), cmd->getWhereVal());
+				delete[] colIdxArr;
 				cout << *cmd;
 				delete cmd;
 			} else if (upperC.find("DELETE FROM") == 0) {

@@ -233,6 +233,33 @@ class SelectCMD {
 	void setTableName(const string &name) {
 		this->tableName = name;
 	}
+
+	bool isSelectAll() {
+		return this->selectAll;
+	}
+
+	int getColIdxCount() {
+		return this->colIdxCnt;
+	}
+
+	int getColIdx(int i) {
+		if (i < 0 || i >= this->colIdxCnt) {
+			throw "out of bounds column index!";
+		}
+		return this->colIdx[i];
+	}
+
+	bool getHasWhere() {
+		return this->hasWhere;
+	}
+
+	int getWhereIdx() {
+		return this->whereIdx;
+	}
+
+	string getWhereVal() {
+		return this->whereVal;
+	}
 }; // end of sekect cmd class
 
 class SelectParser {

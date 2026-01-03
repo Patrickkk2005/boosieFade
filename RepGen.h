@@ -42,8 +42,7 @@ class ReportGenerator {
 		return this->reportDir;
 	}
 
-	// to do: edit for select all or some columns only
-	void generateSelectReport(const string &tableName, CreateTableCMD &table) {
+	void generateSelectReport(const string &tableName, CreateTableCMD &table, int *colIdx, int colIdxCnt, bool hasWhere, int whereIdx, const string &whereVal) {
 
 		string filename = this->reportDir + "SELECT_" + StringFuncs::intTOstring(this->selectID) + ".txt";
 
@@ -56,26 +55,39 @@ class ReportGenerator {
 		file << "===== SELECT REPORT #" << this->selectID << " =====" << endl;
 		file << "Table: " << tableName << endl;
 		file << "========================================" << endl;
-		file << "Columns:" << endl;
-		for (int i = 0; i < table.getColCnt(); i++) {
-			file << table[i].getName() << endl;
+		file << "Selected Columns:" << endl;
+		for (int i = 0; i < colIdxCnt; i++) {
+			file << "  - " << table[colIdx[i]].getName() << endl;
 		}
 		file << endl;
-		file << "Rows (" << table.getRowCount() << " total):" << endl;
+		if (hasWhere) {
+			file << "WHERE condition: " << table[whereIdx].getName() << " = " << whereVal << endl;
+		} else {
+			file << "WHERE condition: none" << endl;
+		}
 		file << "----------------------------------------" << endl;
+		file << "Rows:" << endl;
+		int rowsPrinted = 0;
 		for (int i = 0; i < table.getRowCount(); i++) {
 			string *row = table.getRow(i);
-			file << "Row " << (i + 1) << ": ";
-			for (int j = 0; j < table.getColCnt(); j++) {
-				file << row[j];
-				if (j < table.getColCnt() - 1) {
+			if (hasWhere) {
+				if (row[whereIdx] != whereVal) {
+					continue;
+				}
+			}
+			rowsPrinted++;
+			file << "Row " << rowsPrinted << ": ";
+			for (int j = 0; j < colIdxCnt; j++) {
+				int colPosition = colIdx[j];
+				file << table[colPosition].getName() << "=" << row[colPosition];
+				if (j < colIdxCnt - 1) {
 					file << " | ";
 				}
 			}
 			file << endl;
 		}
 		file << "----------------------------------------" << endl;
-		file << "Total rows selected: " << table.getRowCount() << endl;
+		file << "Total rows selected: " << rowsPrinted << endl;
 		file.close();
 		cout << "Report generated: SELECT_" << this->selectID << ".txt" << endl;
 	}
