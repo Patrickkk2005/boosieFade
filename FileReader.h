@@ -84,7 +84,7 @@ class CommandFileReader {
 	void loadCommandsFromArguments(int argcnt, char **argval) {
 		int fileCount = 0;
 
-		for (int i = 1; i < argcnt && fileCount < 5; i++) {
+		for (int i = 1; i < argcnt && fileCount <= 5; i++) {
 			string filePath = argval[i];
 
 			if (!isTextFile(filePath)) {

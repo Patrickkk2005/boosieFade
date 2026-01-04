@@ -10,18 +10,16 @@ using namespace std;
 class ReportGenerator {
   private:
 	string reportDir;
-	const int selectID;
-	const int displayID;
 
   public:
 	static int selectCounter;
 	static int displayCounter;
 
-	ReportGenerator() : selectID(++selectCounter), displayID(++displayCounter) {
+	ReportGenerator() {
 		this->reportDir = "./";
 	}
 
-	ReportGenerator(const string &dir) : selectID(++selectCounter), displayID(++displayCounter) {
+	ReportGenerator(const string &dir) {
 		this->reportDir = dir;
 		if (this->reportDir[this->reportDir.length() - 1] != '/') {
 			this->reportDir += "/";
@@ -43,8 +41,9 @@ class ReportGenerator {
 	}
 
 	void generateSelectReport(const string &tableName, CreateTableCMD &table, int *colIdx, int colIdxCnt, bool hasWhere, int whereIdx, const string &whereVal) {
+		int selID = selectCounter++;
 
-		string filename = this->reportDir + "SELECT_" + StringFuncs::intTOstring(this->selectID) + ".txt";
+		string filename = this->reportDir + "SELECT_" + StringFuncs::intTOstring(selID) + ".txt";
 
 		ofstream file(filename);
 
@@ -52,7 +51,7 @@ class ReportGenerator {
 			throw "Cannot create SELECT report file";
 		}
 
-		file << "===== SELECT REPORT #" << this->selectID << " =====" << endl;
+		file << "===== SELECT REPORT #" << selID << " =====" << endl;
 		file << "Table: " << tableName << endl;
 		file << "========================================" << endl;
 		file << "Selected Columns:" << endl;
@@ -89,12 +88,13 @@ class ReportGenerator {
 		file << "----------------------------------------" << endl;
 		file << "Total rows selected: " << rowsPrinted << endl;
 		file.close();
-		cout << "Report generated: SELECT_" << this->selectID << ".txt" << endl;
+		cout << "Report generated: SELECT_" << selID << ".txt" << endl;
 	}
 
 	void generateDisplayReport(const string &tableName, CreateTableCMD &table) {
+		int disID = displayCounter++;
 
-		string filename = this->reportDir + "DISPLAY_" + StringFuncs::intTOstring(this->displayID) + ".txt";
+		string filename = this->reportDir + "DISPLAY_" + StringFuncs::intTOstring(disID) + ".txt";
 
 		ofstream file(filename);
 
@@ -102,7 +102,7 @@ class ReportGenerator {
 			throw "Cannot create DISPLAY report file";
 		}
 
-		file << "===== DISPLAY TABLE REPORT #" << this->displayID << " =====" << endl;
+		file << "===== DISPLAY TABLE REPORT #" << disID << " =====" << endl;
 		file << "Table Name: " << tableName << endl;
 		file << "================================================" << endl;
 		file << "Table Structure:" << endl;
@@ -136,15 +136,15 @@ class ReportGenerator {
 		file << "================================================" << endl;
 		file << "Total rows in table: " << table.getRowCount() << endl;
 		file.close();
-		cout << "Report generated: DISPLAY_" << this->displayID << ".txt" << endl;
+		cout << "Report generated: DISPLAY_" << disID << ".txt" << endl;
 	}
 
 	int getSelectCount() const {
-		return this->selectID;
+		return selectCounter;
 	}
 
 	int getDisplayCount() const {
-		return this->displayID;
+		return displayCounter;
 	}
 
 }; // end of RepGen class

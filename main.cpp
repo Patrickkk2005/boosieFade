@@ -6,8 +6,8 @@
 using namespace std;
 
 int CreateTableCMD::commandCounter = 0;
-int ReportGenerator::selectCounter = 0;
-int ReportGenerator::displayCounter = 0;
+int ReportGenerator::selectCounter = 1;
+int ReportGenerator::displayCounter = 1;
 
 int main(int argc, char **argv) {
 	/*Column col1("userID", "NUMBER", 10, "0"); // test with param constructor
