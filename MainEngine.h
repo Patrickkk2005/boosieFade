@@ -1,5 +1,6 @@
 #pragma once
 #include "CfgManager.h"
+#include "Command.h"
 #include "CreateIndex.h"
 #include "CreateTable.h"
 #include "Delete.h"
@@ -30,6 +31,7 @@ class MainEngine {
 	FileManager fileManager;
 	ReportGenerator reportGenerator;
 	CommandFileReader fileReader;
+	CommandHistory commandHistory;
 
   public:
 	void increaseTableCap() {
@@ -134,6 +136,7 @@ class MainEngine {
 				configManager.saveTableSchema(*cmd);
 				fileManager.createDataFile(cmd->getTableName());
 				cout << "Table '" << cmd->getTableName() << "' created." << endl;
+				commandHistory.add(new CreateTableCommand(cmd->getTableName(), cmd->getColCnt()));
 				delete cmd;
 			} else if (upperC.find("DROP TABLE") == 0) {
 				DropTableParser parser;
@@ -150,6 +153,7 @@ class MainEngine {
 				configManager.deleteTableSchema(tableName);
 				fileManager.delDataFile(tableName);
 				cout << "Table dropped." << endl;
+				commandHistory.add(new DropTableCommand(tableName));
 				delete cmd;
 			} else if (upperC.find("DISPLAY TABLE") == 0) {
 				DisplayTableParser parser;
@@ -188,10 +192,11 @@ class MainEngine {
 					throw "Table does not exist!";
 				}
 				cmd->insertInto(this->tables, this->tableCount);
+				cout << *cmd << endl;
 				// file manipulations
 				fileManager.saveTableData(this->tables[tableIdx]);
-				cout << *cmd << endl;
 				cout << "Row inserted into table '" << cmd->getTableName() << "'." << endl;
+				commandHistory.add(new InsertCommand(cmd->getTableName(), cmd->getValueCount()));
 				delete cmd;
 			} else if (upperC.find("SELECT") == 0) {
 				SelectParser parser;
@@ -211,6 +216,7 @@ class MainEngine {
 				reportGenerator.generateSelectReport(cmd->getTableName(), this->tables[tableIdx], colIdxArr, cmd->getColIdxCount(), cmd->getHasWhere(), cmd->getWhereIdx(), cmd->getWhereVal());
 				delete[] colIdxArr;
 				cout << *cmd;
+				commandHistory.add(new SelectCommand(cmd->getTableName()));
 				delete cmd;
 			} else if (upperC.find("DELETE FROM") == 0) {
 				DeleteParser parser;
@@ -254,15 +260,17 @@ class MainEngine {
 				fileManager.saveTableData(this->tables[tableIdx]);
 				cout << *cmd << endl;
 				delete cmd;
+			} else if (upperC == "HISTORY") {
+				commandHistory.printHistory();
 			} else {
-				cout << "For now only CREATE TABLE, DROP TABLE, DISPLAY TABLE, CREATE INDEX, DROP INDEX, INSERT INTO, SELECT, DELETE, UPDATE, and IMPORT are available!" << endl;
+				cout << "Available: CREATE TABLE, DROP TABLE, DISPLAY TABLE, CREATE INDEX, DROP INDEX, INSERT INTO, SELECT, DELETE, UPDATE, IMPORT, HISTORY" << endl;
 			}
 		} catch (const char *err) {
 			cout << "SQL Error: " << err << endl;
 		} catch (const exception &e) {
 			cout << "Error: " << e.what() << endl;
 		} catch (...) {
-			cout << "An unexpected error occurred" << endl;
+			cout << "An error occurred" << endl;
 		}
 	}
 
@@ -301,7 +309,6 @@ class MainEngine {
 	}
 
 	void runapp(int argc, char **argv) {
-		// i didn't know if this was optional so i added it
 		cout << "Configuration directory: " << this->configManager.getConfigDirectory() << endl;
 		cout << "Data directory: " << this->fileManager.getDataDir() << endl;
 
@@ -310,7 +317,7 @@ class MainEngine {
 		}
 
 		string input;
-		cout << "SQLite ENGINE V1 (type 'exit' to quit)" << endl;
+		cout << "SQLite ENGINE V3 (type 'exit' to quit)" << endl;
 		while (true) {
 			cout << "sql>> ";
 			getline(cin, input);
