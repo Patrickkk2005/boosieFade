@@ -260,10 +260,10 @@ class MainEngine {
 				fileManager.saveTableData(this->tables[tableIdx]);
 				cout << *cmd << endl;
 				delete cmd;
-			} else if (upperC == "HISTORY") {
-				commandHistory.printHistory();
+			} else if (upperC == "MENU") {
+				runMenu();
 			} else {
-				cout << "Available: CREATE TABLE, DROP TABLE, DISPLAY TABLE, CREATE INDEX, DROP INDEX, INSERT INTO, SELECT, DELETE, UPDATE, IMPORT, HISTORY" << endl;
+				cout << "Available: CREATE TABLE, DROP TABLE, DISPLAY TABLE, CREATE INDEX, DROP INDEX, INSERT INTO, SELECT, DELETE, UPDATE, IMPORT." << endl;
 			}
 		} catch (const char *err) {
 			cout << "SQL Error: " << err << endl;
@@ -274,7 +274,6 @@ class MainEngine {
 		}
 	}
 
-  public:
 	MainEngine() {
 		this->tables = nullptr;
 		this->tableCount = 0;
@@ -335,4 +334,45 @@ class MainEngine {
 			processCMD(input);
 		}
 	}
-};
+
+	void Menu() {
+		cout << endl;
+		cout << "-----------MENU----------" << endl;
+		cout << "1.  List all Tables" << endl;
+		cout << "2.  Show commands history" << endl;
+		cout << "3.  Display table structure (short)" << endl;
+		cout << "4.  Return to query mode" << endl;
+		cout << "Selection: ";
+	}
+
+	void runMenu() {
+		string selection;
+		while (true) {
+			Menu();
+			getline(cin, selection);
+			if (selection == "4") {
+				break;
+			} else if (selection == "1") {
+				if (tableCount == 0) {
+					cout << "No created tables!";
+				} else {
+					for (int i = 0; i < tableCount; i++) {
+						cout << (i + 1) << ". " << tables[i].getTableName() << endl;
+					}
+				}
+			} else if (selection == "2") {
+				commandHistory.printHistory();
+			} else if (selection == "3") {
+				cout << "Ennter table name: ";
+				string name;
+				getline(cin, name);
+				int i = findTableIndex(name);
+				if (i == -1) {
+					cout << "No table.";
+				} else
+					cout << tables[i];
+			} else
+				cout << "Enter a valid option!";
+		}
+	}
+}; // end of mainEngine class

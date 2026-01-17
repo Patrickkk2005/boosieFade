@@ -94,7 +94,8 @@ class CommandHistory {
 
 	~CommandHistory() {
 		for (int i = 0; i < cnt; i++)
-			delete[] commands[i];
+			delete commands[i];
+		delete[] commands;
 	}
 
 	void add(Command *cmd) {
@@ -103,7 +104,7 @@ class CommandHistory {
 			if (cap == 0) {
 				tempCap = 5;
 			} else
-				tempCap *= 2;
+				tempCap = cap * 2;
 			Command **tempArr = new Command *[tempCap];
 			for (int i = 0; i < cnt; i++)
 				tempArr[i] = commands[i];
@@ -119,5 +120,6 @@ class CommandHistory {
 		for (int i = 0; i < cnt; i++) {
 			cout << (i + 1) << ". " << commands[i]->getType() << " || " << commands[i]->getDescription() << endl;
 		}
+		cout << "====================================" << endl;
 	}
 };
