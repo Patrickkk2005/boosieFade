@@ -16,9 +16,13 @@ class Command {
 
 	virtual string getType() const = 0;
 
-	virtual string getDescription() const { return tableName; }
+	virtual string getDescription() const {
+		return tableName;
+	}
 
-	string getTableName() const { return tableName; }
+	string getTableName() const {
+		return tableName;
+	}
 };
 
 class SelectCommand : public Command {

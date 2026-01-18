@@ -283,6 +283,9 @@ class MainEngine {
 		this->indexCap = 0;
 		this->configManager = ConfigurationManager();
 		this->fileManager = FileManager();
+		this->reportGenerator = ReportGenerator();
+		this->fileReader = CommandFileReader();
+		this->commandHistory = CommandHistory();
 	}
 
 	~MainEngine() {

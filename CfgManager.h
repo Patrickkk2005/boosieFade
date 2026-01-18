@@ -135,4 +135,4 @@ class ConfigurationManager {
 		return this->configDir;
 	}
 
-}; // end of CfgManager class
+}; // end of Cfgmanager class

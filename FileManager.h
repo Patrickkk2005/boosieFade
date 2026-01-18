@@ -157,4 +157,4 @@ class FileManager {
 		return this->dataDir;
 	}
 
-}; // end of FileManager class
+}; // end of File Manager class

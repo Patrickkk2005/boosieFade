@@ -200,4 +200,4 @@ class DeleteParser {
 		delete tokens;
 		return cmd;
 	}
-};
+}; // edn of delete parser class

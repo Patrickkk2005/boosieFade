@@ -35,6 +35,33 @@ class InsertCMD {
 		return -1;
 	}
 
+	bool isOkInteger(const string &s) {
+		int i = 0;
+		if (s[0] == '-')
+			i++;
+		if (i >= s.length())
+			return false;
+		for (int j = i; j < s.length(); j++) {
+			if (!StringFuncs::isDigit(s[j]))
+				return false;
+		}
+		return true;
+	}
+
+	bool isOkFloat(const string &s) {
+		int i = 0;
+		bool dot = false;
+		if (s[0] == '-')
+			i++;
+		for (int j = i; j < s.length(); j++) {
+			if (s[j] == '.') {
+				dot = true;
+			} else if (!StringFuncs::isDigit(s[j]))
+				return false;
+		}
+		return true;
+	}
+
   public:
 	InsertCMD() {
 		this->tableName = "";
@@ -79,6 +106,15 @@ class InsertCMD {
 		}
 		if (tables[idx].getColCnt() != this->valueCnt) {
 			throw "Invalid number of values for table!";
+		}
+		for (int i = 0; i < this->valueCnt; i++) {
+			DataType colType = tables[idx][i].getType();
+			if (colType == INTEGER && !isOkInteger(this->values[i])) {
+				throw "must be INTEGER!";
+			}
+			if (colType == FLOAT && !isOkFloat(this->values[i])) {
+				throw "must be FLOAT!";
+			}
 		}
 		tables[idx].addRow(this->values, this->valueCnt);
 	}

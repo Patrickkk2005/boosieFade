@@ -37,7 +37,7 @@ class CreateTableUtils {
 			throw "invalid datatype";
 		return "UNKNOWN";
 	}
-};
+}; // end of create table utils class
 
 class Column {
   private:

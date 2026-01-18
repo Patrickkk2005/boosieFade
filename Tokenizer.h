@@ -139,6 +139,7 @@ class Tokenizer {
   public:
 	const char *keywords[24] = {"CREATE", "TABLE", "IF", "NOT", "EXISTS", "INTEGER", "FLOAT", "TEXT", "DEFAULT", "SELECT", "FROM", "WHERE", "INSERT", "INTO", "VALUES", "UPDATE", "SET", "DELETE", "DROP", "INDEX", "ON", "DISPLAY", "ALL", "IMPORT"};
 	const int keywcnt = 24;
+	// will add along the way
 	Tokenizer(const string &s) {
 		this->input = s;
 		this->pos = 0;

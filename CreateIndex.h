@@ -12,7 +12,7 @@ class CreateIndexCMD {
 	string tableName;
 	string columnName;
 
-	void deepCpyFunc(char *&news, char *olds) {
+	void deepCpyFunc(char *&news, char const *olds) {
 		if (news != nullptr) {
 			delete[] news;
 			news = nullptr;
@@ -48,7 +48,7 @@ class CreateIndexCMD {
 		this->columnName = "";
 	}
 
-	CreateIndexCMD(char *indexName, const string &tableName, const string &columnName) {
+	CreateIndexCMD(const char *indexName, const string &tableName, const string &columnName) {
 		this->indexName = nullptr;
 		if (indexName == nullptr || tableName.empty() || columnName.empty()) {
 			throw "A fild is empty!";
@@ -56,6 +56,13 @@ class CreateIndexCMD {
 		deepCpyFunc(this->indexName, indexName);
 		this->tableName = tableName;
 		this->columnName = columnName;
+	}
+
+	CreateIndexCMD(const CreateIndexCMD &other) {
+		this->indexName = nullptr;
+		deepCpyFunc(this->indexName, other.indexName);
+		this->tableName = other.tableName;
+		this->columnName = other.columnName;
 	}
 
 	~CreateIndexCMD() {
@@ -85,6 +92,16 @@ class CreateIndexCMD {
 		if (cI == -1) {
 			throw "column doesn't exist!";
 		}
+	}
+
+	CreateIndexCMD &operator=(const CreateIndexCMD &other) {
+		if (this == &other) {
+			return *this;
+		}
+		deepCpyFunc(this->indexName, other.indexName);
+		this->tableName = other.tableName;
+		this->columnName = other.columnName;
+		return *this;
 	}
 
 }; // end of create index command class
@@ -174,4 +191,4 @@ class CreateIndexParser {
 		return idx;
 	}
 
-}; // end of create inde parser class
+}; // end of create index parser class

@@ -12,7 +12,7 @@ class DropIndexCMD {
 
 	int findIndexIndex(CreateIndexCMD *indexes, int indexCount) {
 		for (int i = 0; i < indexCount; i++) {
-			if (indexes[i].getIndexName() == this->indexName) {
+			if (string(indexes[i].getIndexName()) == this->indexName) {
 				return i;
 			}
 		}
@@ -81,4 +81,4 @@ class DropIndexParser {
 		delete tokens;
 		return new DropIndexCMD(name);
 	}
-}; // end of drop index parser class
+}; // end of drop parser class

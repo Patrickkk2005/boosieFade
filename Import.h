@@ -71,7 +71,7 @@ class ImportCMD {
 		os << "Imported from file '" << cmd.csvFilename << "' into table '" << cmd.tableName << "'";
 		return os;
 	}
-};
+}; // end of import cmd class
 
 class ImportParser {
   private:

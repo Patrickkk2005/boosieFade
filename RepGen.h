@@ -147,4 +147,4 @@ class ReportGenerator {
 		return displayCounter;
 	}
 
-}; // end of RepGen class
+}; // end of RepGen clas

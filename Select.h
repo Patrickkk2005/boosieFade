@@ -374,4 +374,4 @@ class SelectParser {
 		delete tokens;
 		return cmd;
 	}
-};
+}; // end of select parser class

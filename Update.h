@@ -149,7 +149,7 @@ class UpdateCMD {
 
 		return updateRowsWhere(tbl, this->setIdx, this->setVal, this->whereIdx, this->whereVal);
 	}
-};
+}; // end of update cmmd class
 
 class UpdateParser {
   private:

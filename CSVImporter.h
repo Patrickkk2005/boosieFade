@@ -85,4 +85,4 @@ class CSVImporter {
 		file.close();
 		cout << "Imported " << lineCnt << " row(s) from '" << filename << "'." << endl;
 	}
-};
+}; // end of csv importer class

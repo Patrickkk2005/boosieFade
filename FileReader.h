@@ -118,4 +118,4 @@ class CommandFileReader {
 		return this->commandCount > 0;
 	}
 
-}; // end of FileREader class
+}; // end of FileReader class

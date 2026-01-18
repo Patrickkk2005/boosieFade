@@ -84,4 +84,4 @@ class DropTableParser {
 		delete tokens;
 		return new DropTableCMD(name);
 	}
-};
+}; // end of drop table class

@@ -77,4 +77,4 @@ class DisplayTableParser {
 		delete tokens;
 		return new DisplayTableCMD(name);
 	}
-};
+}; // end of display parser class
